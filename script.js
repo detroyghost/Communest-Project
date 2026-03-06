@@ -3,8 +3,8 @@
 /* ═══════════════════════════════════════════════════════
    COMMUNEST — app.js
    Communest Digital Estate Management Platform
-   Author: Kipngeno Shammah Kiplangat · BIT/0935/2022
-   Supervised by: Dr. Odoyo · Pioneer International University
+   Author: Kipngeno Shammah Kiplangat
+   Communest — Kenya Digital Estate Platform
 ═══════════════════════════════════════════════════════ */
 
 /* ─────────────────────────────────────────────────────
@@ -1425,7 +1425,7 @@ const CHAT_KNOWLEDGE = {
   tenant: ['tenant','dashboard','my estate','requests','announcements','rent','payments','lease'],
   management: ['management','manager','manage','manage houses','add house','post announcement','applications'],
   inquiry: ['inquiry','inquire','question','contact','viewing','visit'],
-  about: ['about','history','developer','communest','platform','pioneer','university'],
+  about: ['about','history','developer','communest','platform','founder','team'],
   photos: ['photos','gallery','pictures','images','upload','photo'],
   dark: ['dark mode','theme','dark','light mode'],
   help: ['help','what can you do','options','menu','navigate','navigation'],
@@ -1440,7 +1440,7 @@ const CHAT_RESPONSES = {
   tenant: () => `As a tenant, your dashboard gives you:\n• 📊 **Overview** — quick summary of your estate\n• 🔧 **My Requests** — submit and track maintenance issues\n• 📢 **Announcements** — estate notices from management\n• 💳 **Rent & Payments** — payment history\n• 📄 **My Lease** — your lease details and dates\n\nSign in with your estate credentials to access these.`,
   management: () => `As a manager, your dashboard includes:\n• 📊 Overview & stats\n• 🔧 Tenant requests\n• 📢 Post announcements\n• 👥 Manage tenants\n• 📋 Review applications\n• 🏠 Add / manage houses\n• 🖼️ Upload estate photos\n• 💬 View public inquiries`,
   inquiry: () => `To send an inquiry to an estate:\n1. Go to **Estates** and click the estate you're interested in\n2. Click **💬 Send Inquiry** in the sidebar\n3. Fill in your name, email, phone, subject and message\n4. Management will respond within 24 hours.`,
-  about: () => `Communest was built by **Kipngeno Shammah Kiplangat** (BIT/0935/2022) at Pioneer International University, supervised by Dr. Odoyo.\n\nIt's a digital estate management platform serving landlords and tenants across Kenya.\n\nClick **About** in the navbar to read the full story.`,
+  about: () => `Communest was founded by **Kipngeno Shammah Kiplangat**, a Nairobi-based developer.\n\nIt's a digital estate management platform built to serve landlords and tenants across Kenya.\n\nClick **About** in the navbar to read the full story.`,
   photos: () => `Each house listing has a photo gallery. Click the **📷 Photos** button on any house card to view uploaded photos.\n\nIf you're a manager, you can:\n• Upload house photos via the gallery in **Manage Houses**\n• Upload estate-wide photos in **🖼️ Estate Photos** panel`,
   dark: () => `The platform uses a dark theme throughout for a comfortable experience on all devices.`,
   help: () => `I can help you with:\n• 🏙️ Browsing estates\n• 🏠 Finding & applying for houses\n• 🔑 Signing in or registering\n• 💬 Sending inquiries\n• 📊 Using your tenant or management dashboard\n• ℹ️ Learning about Communest\n\nJust type your question!`,

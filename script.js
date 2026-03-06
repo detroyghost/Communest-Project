@@ -1148,65 +1148,40 @@ function buildAnnHTML(anns, estateName) {
 
 
 /* ─────────────────────────────────────────────────────
-   18. MY ESTATE PANEL — toggleable slide-in on directory
+   18. DIRECTORY SIDEBAR — swaps content based on auth
 ───────────────────────────────────────────────────── */
-let myEstatePanelOpen = false;
-
-function toggleMyEstatePanel() {
-  myEstatePanelOpen = !myEstatePanelOpen;
-  const panel   = document.getElementById('myEstatePanel');
-  const overlay = document.getElementById('myEstatePanelOverlay');
-  const btn     = document.getElementById('myEstateMenuBtn');
-  if (panel)   panel.classList.toggle('open', myEstatePanelOpen);
-  if (overlay) overlay.classList.toggle('active', myEstatePanelOpen);
-  if (btn)     btn.classList.toggle('active', myEstatePanelOpen);
-}
-
-function closeMyEstatePanel() {
-  myEstatePanelOpen = false;
-  const panel   = document.getElementById('myEstatePanel');
-  const overlay = document.getElementById('myEstatePanelOverlay');
-  const btn     = document.getElementById('myEstateMenuBtn');
-  if (panel)   panel.classList.remove('open');
-  if (overlay) overlay.classList.remove('active');
-  if (btn)     btn.classList.remove('active');
-}
-
 function updateDirSidebar() {
-  const menuBtn = document.getElementById('myEstateMenuBtn');
-  if (!menuBtn) return;
+  const signedOut = document.getElementById('dirSignedOut');
+  const signedIn  = document.getElementById('dirSignedIn');
+  if (!signedOut || !signedIn) return;
 
   if (!currentUser) {
-    menuBtn.style.display = 'none';
-    closeMyEstatePanel();
+    signedOut.style.display = 'block';
+    signedIn.style.display  = 'none';
     return;
   }
 
-  // Show the My Estate menu button
-  menuBtn.style.display = 'flex';
+  // Signed in — show estate nav, hide directory filters
+  signedOut.style.display = 'none';
+  signedIn.style.display  = 'block';
 
   const estate = currentUser.estateId ? ESTATES.find(e => e.id === currentUser.estateId) : null;
   const isMgr  = currentUser.role === 'management';
   const eid    = estate ? estate.id : null;
 
-  // Label on the button
-  const label = document.getElementById('myEstateMenuLabel');
-  if (label) label.textContent = estate ? estate.name : 'My Account';
-
-  // Panel brand
   setText('dirSidebarName', estate ? estate.name : 'My Account');
   setText('dirSidebarRole', isMgr
     ? 'Management'
     : currentUser.unit ? 'Tenant · Unit ' + currentUser.unit : 'Tenant');
 
-  // EXPLORE section
+  // EXPLORE
   const exploreNav = document.getElementById('dirExploreNav');
   if (exploreNav) {
     exploreNav.innerHTML = estate
       ? '<span class="sb-lbl">EXPLORE</span>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-houses\');closeMyEstatePanel()">🏠 Available Houses</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-about\');closeMyEstatePanel()">ℹ️ About This Estate</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-inquire\');closeMyEstatePanel()">💬 Send Inquiry</button>'
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-houses\')">🏠 Available Houses</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-about\')">ℹ️ About This Estate</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-inquire\')">💬 Send Inquiry</button>'
       : '';
   }
 
@@ -1216,22 +1191,22 @@ function updateDirSidebar() {
     if (isMgr && estate) {
       roleNav.innerHTML =
         '<span class="sb-lbl">MANAGEMENT</span>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-overview\');closeMyEstatePanel()">📊 Overview</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-requests\');closeMyEstatePanel()">🔧 Tenant Requests</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-announcements\');closeMyEstatePanel()">📢 Announcements</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-tenants\');closeMyEstatePanel()">👥 My Tenants</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-applications\');closeMyEstatePanel()">📋 Applications</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-houses\');closeMyEstatePanel()">🏠 Manage Houses</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-photos\');closeMyEstatePanel()">🖼️ Estate Photos</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-inquiries\');closeMyEstatePanel()">💬 Inquiries</button>';
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-overview\')">📊 Overview</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-requests\')">🔧 Tenant Requests</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-announcements\')">📢 Announcements</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-tenants\')">👥 My Tenants</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-applications\')">📋 Applications</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-houses\')">🏠 Manage Houses</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-photos\')">🖼️ Estate Photos</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-inquiries\')">💬 Inquiries</button>';
     } else if (estate) {
       roleNav.innerHTML =
         '<span class="sb-lbl">MY ESTATE</span>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-overview\');closeMyEstatePanel()">📊 Overview</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-requests\');closeMyEstatePanel()">🔧 My Requests</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-announcements\');closeMyEstatePanel()">📢 Announcements</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-rent\');closeMyEstatePanel()">💳 Rent &amp; Payments</button>' +
-        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-lease\');closeMyEstatePanel()">📄 My Lease</button>';
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-overview\')">📊 Overview</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-requests\')">🔧 My Requests</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-announcements\')">📢 Announcements</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-rent\')">💳 Rent &amp; Payments</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-lease\')">📄 My Lease</button>';
     } else {
       roleNav.innerHTML = '<p style="font-size:.78rem;color:var(--text-3);padding:6px 4px">Not yet connected to an estate.</p>';
     }
@@ -1244,8 +1219,8 @@ function updateDirSidebar() {
     accountNav.innerHTML =
       '<span class="sb-lbl">ACCOUNT</span>' +
       '<button class="si" style="cursor:default;opacity:.65;pointer-events:none">👤 ' + currentUser.name + '</button>' +
-      (estate ? '<button class="si si-back" onclick="openEstatePage(' + eid + ',\'' + backPanel + '\');closeMyEstatePanel()">🏘️ Back to Estate</button>' : '') +
-      '<button class="si si-back" onclick="doSignout();closeMyEstatePanel()">← Sign Out</button>';
+      (estate ? '<button class="si si-back" onclick="openEstatePage(' + eid + ',\'' + backPanel + '\')">🏘️ Back to Estate</button>' : '') +
+      '<button class="si si-back" onclick="doSignout()">← Sign Out</button>';
   }
 }
 

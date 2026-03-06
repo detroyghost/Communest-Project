@@ -101,49 +101,57 @@
 <section id="page-estates" class="page page-dash">
   <div class="dash-layout">
 
-    <!-- Left sidebar: always visible, directory filters only -->
+    <!-- SIDEBAR — shows directory when signed out, estate nav when signed in -->
     <aside class="dash-sidebar" id="estatesDirSidebar">
-      <div class="sb-brand">
-        <div class="sb-logo">Estates</div>
-        <div class="sb-role">Directory</div>
+
+      <!-- SIGNED OUT: directory filters -->
+      <div id="dirSignedOut">
+        <div class="sb-brand">
+          <div class="sb-logo">Estates</div>
+          <div class="sb-role">Directory</div>
+        </div>
+        <nav class="sb-nav">
+          <span class="sb-lbl">BROWSE</span>
+          <button class="si active" data-estates-filter="all">🏙️ All Estates</button>
+          <button class="si" data-estates-filter="available">✅ Has Availability</button>
+          <button class="si" data-estates-filter="new">🆕 Newly Listed</button>
+          <span class="sb-lbl">BY LOCATION</span>
+          <button class="si" data-estates-loc="Karen">📍 Karen</button>
+          <button class="si" data-estates-loc="Kilimani">📍 Kilimani</button>
+          <button class="si" data-estates-loc="Westlands">📍 Westlands</button>
+          <button class="si" data-estates-loc="Ngong Road">📍 Ngong Road</button>
+          <button class="si" data-estates-loc="Lavington">📍 Lavington</button>
+          <button class="si" data-estates-loc="Thika Road">📍 Thika Road</button>
+          <span class="sb-lbl">MANAGE</span>
+          <button class="si" onclick="openModal('listEstateModal')">➕ List Your Estate</button>
+          <button class="si si-back" onclick="showPage('home')" style="margin-top:8px">← Home</button>
+        </nav>
       </div>
-      <nav class="sb-nav">
-        <span class="sb-lbl">BROWSE</span>
-        <button class="si active" data-estates-filter="all">🏙️ All Estates</button>
-        <button class="si" data-estates-filter="available">✅ Has Availability</button>
-        <button class="si" data-estates-filter="new">🆕 Newly Listed</button>
-        <span class="sb-lbl">BY LOCATION</span>
-        <button class="si" data-estates-loc="Karen">📍 Karen</button>
-        <button class="si" data-estates-loc="Kilimani">📍 Kilimani</button>
-        <button class="si" data-estates-loc="Westlands">📍 Westlands</button>
-        <button class="si" data-estates-loc="Ngong Road">📍 Ngong Road</button>
-        <button class="si" data-estates-loc="Lavington">📍 Lavington</button>
-        <button class="si" data-estates-loc="Thika Road">📍 Thika Road</button>
-        <span class="sb-lbl">MANAGE</span>
-        <button class="si" onclick="openModal('listEstateModal')">➕ List Your Estate</button>
-        <button class="si si-back" onclick="showPage('home')" style="margin-top:8px">← Home</button>
-      </nav>
+
+      <!-- SIGNED IN: mirrors estate page sidebar exactly -->
+      <div id="dirSignedIn" style="display:none">
+        <div class="sb-brand">
+          <div class="sb-logo" id="dirSidebarName">My Estate</div>
+          <div class="sb-role" id="dirSidebarRole">Signed In</div>
+        </div>
+        <nav class="sb-nav">
+          <div id="dirExploreNav"></div>
+          <div id="dirRoleNav"></div>
+          <div id="dirAccountNav"></div>
+        </nav>
+      </div>
+
     </aside>
 
     <!-- Main content -->
     <div class="dash-main" id="estatesDashMain">
       <div class="dp-hdr" style="margin-bottom:20px">
         <div style="display:flex;align-items:center;gap:12px">
-          <!-- Mobile: toggle directory sidebar -->
-          <button class="sidebar-toggle-btn" id="estatesSidebarToggle" onclick="toggleEstatesSidebar()" aria-label="Toggle filters">☰</button>
+          <button class="sidebar-toggle-btn" id="estatesSidebarToggle" onclick="toggleEstatesSidebar()" aria-label="Toggle sidebar">☰</button>
           <div style="flex:1">
             <h2 id="estDirTitle">All Listed Estates</h2>
             <div id="estDirSubtitle" style="font-size:.83rem;color:var(--text-3);margin-top:3px">Browse and click any estate to explore</div>
           </div>
-          <!-- My Estate menu button — shown when signed in -->
-          <button class="my-estate-menu-btn" id="myEstateMenuBtn" onclick="toggleMyEstatePanel()" style="display:none">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="5" width="18" height="2" rx="1" fill="currentColor"/>
-              <rect x="3" y="11" width="18" height="2" rx="1" fill="currentColor"/>
-              <rect x="3" y="17" width="18" height="2" rx="1" fill="currentColor"/>
-            </svg>
-            <span id="myEstateMenuLabel">My Estate</span>
-          </button>
         </div>
       </div>
 
@@ -167,27 +175,8 @@
     </div>
   </div>
 
-  <!-- Overlays -->
+  <!-- Dark overlay when sidebar open on mobile -->
   <div class="sidebar-overlay" id="estatesSidebarOverlay" onclick="toggleEstatesSidebar()"></div>
-  <div class="sidebar-overlay" id="myEstatePanelOverlay" onclick="toggleMyEstatePanel()"></div>
-
-  <!-- MY ESTATE SLIDE-IN PANEL (shown when signed in, toggled by menu btn) -->
-  <aside class="my-estate-panel" id="myEstatePanel">
-    <div class="my-estate-panel-header">
-      <div>
-        <div class="sb-logo" id="dirSidebarName" style="font-size:1rem">My Estate</div>
-        <div class="sb-role" id="dirSidebarRole" style="font-size:.72rem">Signed In</div>
-      </div>
-      <button class="my-estate-panel-close" onclick="toggleMyEstatePanel()">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
-    </div>
-    <nav class="sb-nav" style="padding:8px 0">
-      <div id="dirExploreNav"></div>
-      <div id="dirRoleNav"></div>
-      <div id="dirAccountNav"></div>
-    </nav>
-  </aside>
 
   <footer class="site-footer">© 2026 Communest</footer>
 </section>

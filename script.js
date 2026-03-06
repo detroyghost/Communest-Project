@@ -291,6 +291,7 @@ function doEstateLogin() {
 
   currentUser = user;
   closeModal('estateAuthModal');
+  updateDirSidebar();
 
   // Update nav button to initials
   const navBtn = document.getElementById('navSignInBtn');
@@ -322,6 +323,7 @@ function doLogin() {
 
   currentUser = user;
   closeModal('authModal');
+  updateDirSidebar();
 
   // Update nav button to show initials
   const navBtn = document.getElementById('navSignInBtn');
@@ -365,6 +367,7 @@ function doSignup() {
 
 function doSignout() {
   currentUser = null;
+  updateDirSidebar();
   const navBtn = document.getElementById('navSignInBtn');
   navBtn.textContent = 'Register';
   navBtn.style.cssText = '';
@@ -1061,27 +1064,59 @@ function setEstDirFilter(filter, loc) {
 }
 
 function renderEstatesDirectory() {
-  const grid   = document.getElementById('estatesDirectoryGrid');
-  const search = (document.getElementById('estateSearch')?.value || '').toLowerCase();
+  const grid      = document.getElementById('estatesDirectoryGrid');
+  const searchEl  = document.getElementById('estateSearch');
+  const clearBtn  = document.getElementById('estateSearchClear');
+  const metaEl    = document.getElementById('estateSearchMeta');
+  const search    = (searchEl?.value || '').toLowerCase().trim();
   if (!grid) return;
 
+  // Show/hide clear button
+  if (clearBtn) clearBtn.style.display = search ? 'flex' : 'none';
+
   let filtered = ESTATES.filter(e => {
-    if (search && !e.name.toLowerCase().includes(search) && !e.location.toLowerCase().includes(search)) return false;
+    if (search) {
+      const inName     = e.name.toLowerCase().includes(search);
+      const inLocation = e.location.toLowerCase().includes(search);
+      const inAmenity  = (e.amenities || []).some(a => a.toLowerCase().includes(search));
+      if (!inName && !inLocation && !inAmenity) return false;
+    }
     if (estDirLoc && !e.location.includes(estDirLoc)) return false;
     if (estDirFilter === 'available') {
       const avail = (HOUSES[e.id] || []).filter(h => h.status === 'Available').length;
       if (!avail) return false;
     }
     if (estDirFilter === 'new') {
-      // Treat estates with id > 6 as newly listed (user-added)
       if (e.id <= 6) return false;
     }
     return true;
   });
 
+  // Update result meta
+  if (metaEl) {
+    if (search) {
+      metaEl.textContent = filtered.length
+        ? filtered.length + ' estate' + (filtered.length !== 1 ? 's' : '') + ' found for "' + searchEl.value.trim() + '"'
+        : '';
+      metaEl.style.display = 'block';
+    } else {
+      metaEl.style.display = 'none';
+    }
+  }
+
   grid.innerHTML = filtered.length
     ? filtered.map(estateCardHTML).join('')
-    : `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-3)"><div style="font-size:2.5rem;margin-bottom:10px">🔍</div><p>No estates match your search.</p></div>`;
+    : '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-3)">'
+      + '<div style="font-size:2.5rem;margin-bottom:10px">🔍</div>'
+      + '<p>No estates match <strong>' + (searchEl?.value.trim() || 'your search') + '</strong>.</p>'
+      + '<button class="btn btn-outline" style="margin-top:16px" onclick="clearEstateSearch()">Clear search</button>'
+      + '</div>';
+}
+
+function clearEstateSearch() {
+  const el = document.getElementById('estateSearch');
+  if (el) { el.value = ''; el.focus(); }
+  renderEstatesDirectory();
 }
 
 
@@ -1111,6 +1146,82 @@ function buildAnnHTML(anns, estateName) {
     </div>`).join('');
 }
 
+
+/* ─────────────────────────────────────────────────────
+   18. DIRECTORY SIDEBAR — mirrors estate page when signed in
+───────────────────────────────────────────────────── */
+function updateDirSidebar() {
+  const signedOut = document.getElementById('dirSignedOut');
+  const signedIn  = document.getElementById('dirSignedIn');
+  if (!signedOut || !signedIn) return;
+
+  if (!currentUser) {
+    signedOut.style.display = 'block';
+    signedIn.style.display  = 'none';
+    return;
+  }
+
+  // Signed in — show estate sidebar, hide directory
+  signedOut.style.display = 'none';
+  signedIn.style.display  = 'block';
+
+  const estate  = currentUser.estateId ? ESTATES.find(e => e.id === currentUser.estateId) : null;
+  const isMgr   = currentUser.role === 'management';
+  const eid     = estate ? estate.id : null;
+
+  // Brand block
+  setText('dirSidebarName', estate ? estate.name : 'My Account');
+  setText('dirSidebarRole', isMgr ? 'Management'
+    : (currentUser.unit ? 'Tenant · Unit ' + currentUser.unit : 'Tenant'));
+
+  // EXPLORE
+  const exploreNav = document.getElementById('dirExploreNav');
+  if (exploreNav) {
+    exploreNav.innerHTML = estate
+      ? '<span class="sb-lbl">EXPLORE</span>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-houses\')">🏠 Available Houses</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-about\')">ℹ️ About This Estate</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-inquire\')">💬 Send Inquiry</button>'
+      : '';
+  }
+
+  // MANAGEMENT or MY ESTATE nav
+  const roleNav = document.getElementById('dirRoleNav');
+  if (roleNav) {
+    if (isMgr && estate) {
+      roleNav.innerHTML =
+        '<span class="sb-lbl">MANAGEMENT</span>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-overview\')">📊 Overview</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-requests\')">🔧 Tenant Requests</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-announcements\')">📢 Announcements</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-tenants\')">👥 My Tenants</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-applications\')">📋 Applications</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-houses\')">🏠 Manage Houses</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-photos\')">🖼️ Estate Photos</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-mgmt-inquiries\')">💬 Inquiries</button>';
+    } else if (estate) {
+      roleNav.innerHTML =
+        '<span class="sb-lbl">MY ESTATE</span>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-overview\')">📊 Overview</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-requests\')">🔧 My Requests</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-announcements\')">📢 Announcements</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-rent\')">💳 Rent &amp; Payments</button>' +
+        '<button class="si" onclick="openEstatePage(' + eid + ',\'ep-lease\')">📄 My Lease</button>';
+    } else {
+      roleNav.innerHTML = '<p style="font-size:.78rem;color:var(--text-3);padding:6px 4px">Not connected to an estate yet.</p>';
+    }
+  }
+
+  // ACCOUNT
+  const accountNav = document.getElementById('dirAccountNav');
+  if (accountNav) {
+    accountNav.innerHTML =
+      '<span class="sb-lbl">ACCOUNT</span>' +
+      '<button class="si" style="cursor:default;opacity:.65;pointer-events:none">👤 ' + currentUser.name + '</button>' +
+      '<button class="si si-back" onclick="doSignout()">← Sign Out</button>' +
+      (estate ? '<button class="si si-back" onclick="openEstatePage(' + eid + ',\'' + (isMgr ? 'ep-mgmt-overview' : 'ep-overview') + '\')">🏘️ Back to Estate</button>' : '');
+  }
+}
 
 /* ─────────────────────────────────────────────────────
    18. INIT
@@ -1443,7 +1554,7 @@ const CHAT_RESPONSES = {
   tenant: () => `As a tenant, your dashboard gives you:\n• 📊 **Overview** — quick summary of your estate\n• 🔧 **My Requests** — submit and track maintenance issues\n• 📢 **Announcements** — estate notices from management\n• 💳 **Rent & Payments** — payment history\n• 📄 **My Lease** — your lease details and dates\n\nSign in with your estate credentials to access these.`,
   management: () => `As a manager, your dashboard includes:\n• 📊 Overview & stats\n• 🔧 Tenant requests\n• 📢 Post announcements\n• 👥 Manage tenants\n• 📋 Review applications\n• 🏠 Add / manage houses\n• 🖼️ Upload estate photos\n• 💬 View public inquiries`,
   inquiry: () => `To send an inquiry to an estate:\n1. Go to **Estates** and click the estate you're interested in\n2. Click **💬 Send Inquiry** in the sidebar\n3. Fill in your name, email, phone, subject and message\n4. Management will respond within 24 hours.`,
-  about: () => `Communest was founded by **Kipngeno Shammah Kiplangat**, a Nairobi-based developer.\n\nIt's a digital estate management platform built to serve landlords and tenants across Kenya.\n\nClick **About** in the navbar to read the full story.`,
+  about: () => `Communest was founded in 2026 by **Kipngeno Shammah Kiplangat**, a Nairobi-based developer.\n\nIt's a digital estate management platform built to serve landlords and tenants across Kenya.\n\nClick **About** in the navbar to read the full story.`,
   photos: () => `Each house listing has a photo gallery. Click the **📷 Photos** button on any house card to view uploaded photos.\n\nIf you're a manager, you can:\n• Upload house photos via the gallery in **Manage Houses**\n• Upload estate-wide photos in **🖼️ Estate Photos** panel`,
   dark: () => `The platform uses a dark theme throughout for a comfortable experience on all devices.`,
   help: () => `I can help you with:\n• 🏙️ Browsing estates\n• 🏠 Finding & applying for houses\n• 🔑 Signing in or registering\n• 💬 Sending inquiries\n• 📊 Using your tenant or management dashboard\n• ℹ️ Learning about Communest\n\nJust type your question!`,

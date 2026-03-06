@@ -100,30 +100,55 @@
 <!-- ═══════════ ESTATES DIRECTORY ═══════════ -->
 <section id="page-estates" class="page page-dash">
   <div class="dash-layout">
-    <aside class="dash-sidebar">
-      <div class="sb-brand">
-        <div class="sb-logo">Estates</div>
-        <div class="sb-role">Directory</div>
+
+    <!-- SIDEBAR: shows directory filters when signed out, estate nav when signed in -->
+    <aside class="dash-sidebar" id="estatesDirSidebar">
+
+      <!-- SIGNED OUT: directory sidebar -->
+      <div id="dirSignedOut">
+        <div class="sb-brand">
+          <div class="sb-logo">Estates</div>
+          <div class="sb-role">Directory</div>
+        </div>
+        <nav class="sb-nav">
+          <div class="dir-signin-prompt">
+            <div class="dir-signin-icon">🔑</div>
+            <p>Sign in to access your estate dashboard</p>
+            <button class="btn btn-primary btn-full" style="font-size:.8rem;padding:9px" onclick="openEstateAuthModal()">Sign In to My Estate</button>
+          </div>
+          <div class="sb-divider"></div>
+          <span class="sb-lbl">BROWSE</span>
+          <button class="si active" data-estates-filter="all">🏙️ All Estates</button>
+          <button class="si" data-estates-filter="available">✅ Has Availability</button>
+          <button class="si" data-estates-filter="new">🆕 Newly Listed</button>
+          <span class="sb-lbl">BY LOCATION</span>
+          <button class="si" data-estates-loc="Karen">📍 Karen</button>
+          <button class="si" data-estates-loc="Kilimani">📍 Kilimani</button>
+          <button class="si" data-estates-loc="Westlands">📍 Westlands</button>
+          <button class="si" data-estates-loc="Ngong Road">📍 Ngong Road</button>
+          <button class="si" data-estates-loc="Lavington">📍 Lavington</button>
+          <button class="si" data-estates-loc="Thika Road">📍 Thika Road</button>
+          <span class="sb-lbl">MANAGE</span>
+          <button class="si" onclick="openModal('listEstateModal')">➕ List Your Estate</button>
+          <button class="si si-back" onclick="showPage('home')" style="margin-top:8px">← Home</button>
+        </nav>
       </div>
-      <nav class="sb-nav">
-        <span class="sb-lbl">BROWSE</span>
-        <button class="si active" data-estates-filter="all">🏙️ All Estates</button>
-        <button class="si" data-estates-filter="available">✅ Has Availability</button>
-        <button class="si" data-estates-filter="new">🆕 Newly Listed</button>
-        <span class="sb-lbl">BY LOCATION</span>
-        <button class="si" data-estates-loc="Karen">📍 Karen</button>
-        <button class="si" data-estates-loc="Kilimani">📍 Kilimani</button>
-        <button class="si" data-estates-loc="Westlands">📍 Westlands</button>
-        <button class="si" data-estates-loc="Ngong Road">📍 Ngong Road</button>
-        <button class="si" data-estates-loc="Lavington">📍 Lavington</button>
-        <button class="si" data-estates-loc="Thika Road">📍 Thika Road</button>
-        <span class="sb-lbl">MANAGE</span>
-        <button class="si" onclick="openModal('listEstateModal')">➕ List Your Estate</button>
-        <span class="sb-lbl">ACCOUNT</span>
-        <button class="si" onclick="openModal('authModal')">🔑 Sign In</button>
-        <button class="si si-back" onclick="showPage('home')" style="margin-top:8px">← Home</button>
-      </nav>
+
+      <!-- SIGNED IN: mirrors estate page sidebar exactly -->
+      <div id="dirSignedIn" style="display:none">
+        <div class="sb-brand">
+          <div class="sb-logo" id="dirSidebarName">My Estate</div>
+          <div class="sb-role" id="dirSidebarRole">Signed In</div>
+        </div>
+        <nav class="sb-nav">
+          <div id="dirExploreNav"></div>
+          <div id="dirRoleNav"></div>
+          <div id="dirAccountNav"></div>
+        </nav>
+      </div>
+
     </aside>
+
     <div class="dash-main" id="estatesDashMain">
       <div class="dp-hdr" style="margin-bottom:20px">
         <div style="display:flex;align-items:center;gap:12px">
@@ -134,8 +159,21 @@
           </div>
         </div>
       </div>
-      <div class="filter-bar" style="margin-bottom:24px">
-        <input class="input" id="estateSearch" placeholder="🔍 Search by name or location…" oninput="renderEstatesDirectory()" style="flex:1;min-width:180px" />
+      <!-- Estate Search Bar -->
+      <div class="estate-search-bar">
+        <div class="estate-search-inner">
+          <svg class="estate-search-icon" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+            <path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <input class="estate-search-input" id="estateSearch" type="text"
+            placeholder="Search by estate name or location…"
+            oninput="renderEstatesDirectory()" autocomplete="off" />
+          <button class="estate-search-clear" id="estateSearchClear" onclick="clearEstateSearch()" title="Clear search">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="estate-search-meta" id="estateSearchMeta"></div>
       </div>
       <div class="houses-grid" id="estatesDirectoryGrid"></div>
     </div>
@@ -143,7 +181,6 @@
   <div class="sidebar-overlay" id="estatesSidebarOverlay" onclick="toggleEstatesSidebar()"></div>
   <footer class="site-footer">© 2026 Communest</footer>
 </section>
-
 
 <!-- ═══════════ ABOUT PAGE ═══════════ -->
 <section id="page-about" class="page">
@@ -197,8 +234,8 @@
         <p class="about-desc">Estate managers were drowning in paper-based systems — handwritten rent receipts, physical complaint books, and phone call chains for announcements. Tenants had no central place to track their lease, payments, or submit issues. Communest was built to close that gap.</p>
         <p class="about-desc">A single digital space where an estate can exist online, where outsiders can browse and apply, and where tenants can manage their residency transparently.</p>
         <div class="about-feats" style="margin-top:32px">
-          <div class="af"><div class="af-icon">📅</div><div><h4>2026 — Concept & Research</h4><p>Identified the gap in Kenya's estate management landscape through field research in Nairobi.</p></div></div>
-          <div class="af"><div class="af-icon">🖥️</div><div><h4>2026 — Development Begins</h4><p>Full platform development kicks off, bringing together estate management, tenant tooling, and a public listing directory into one cohesive product.</p></div></div>
+          <div class="af"><div class="af-icon">📅</div><div><h4>2024 — Concept & Research</h4><p>Identified the gap in Kenya's estate management landscape through field research in Nairobi.</p></div></div>
+          <div class="af"><div class="af-icon">🖥️</div><div><h4>2026 — Development &amp; Launch</h4><p>Full platform development kicks off, bringing together estate management, tenant tooling, and a public listing directory into one cohesive product.</p></div></div>
           <div class="af"><div class="af-icon">🚀</div><div><h4>2026 — Platform Launch</h4><p>Communest goes live with full tenant management, photo galleries, and public inquiry features.</p></div></div>
         </div>
       </div>
@@ -207,7 +244,7 @@
           <span class="abox-lbl">Legal & Compliance</span>
           <div class="about-feats" style="margin-top:8px">
             <div class="af"><div class="af-icon">📜</div><div><h4>Title Deeds</h4><p>Estates are encouraged to register their title deed reference numbers for transparency, verifiable through the Lands Registry.</p></div></div>
-            <div class="af"><div class="af-icon">🏛️</div><div><h4>Land Registration Act, 2026</h4><p>Communest operates in alignment with Kenya's Land Registration Act governing ownership, transfer, and leasing of residential property.</p></div></div>
+            <div class="af"><div class="af-icon">🏛️</div><div><h4>Land Registration Act, 2012</h4><p>Communest operates in alignment with Kenya's Land Registration Act governing ownership, transfer, and leasing of residential property.</p></div></div>
             <div class="af"><div class="af-icon">🤝</div><div><h4>Tenancy Agreements</h4><p>Management teams maintain formal lease agreements with all tenants. Communest stores lease dates, rent, and unit details digitally.</p></div></div>
             <div class="af"><div class="af-icon">🔒</div><div><h4>Data Privacy</h4><p>Tenant data is scoped strictly to their estate. No personal information is shared across estates or made public.</p></div></div>
           </div>
@@ -603,7 +640,7 @@
     </div>
     <div class="form-row">
       <div class="form-group"><label>Total Units</label><input class="input" id="leUnits" type="number" placeholder="e.g. 96" /></div>
-      <div class="form-group"><label>Year Built</label><input class="input" id="leYear" placeholder="e.g. 2026" /></div>
+      <div class="form-group"><label>Year Built</label><input class="input" id="leYear" placeholder="e.g. 2018" /></div>
     </div>
     <div class="form-group">
       <label>Title Deed Reference Number
@@ -972,7 +1009,6 @@
     <rect x="3" y="17" width="5" height="9" rx="2.5" fill="white" opacity=".6"/>
     <rect x="40" y="17" width="5" height="9" rx="2.5" fill="white" opacity=".6"/>
   </svg>
-  <!-- <span class="chatbot-fab-label">/</span> -->
 </button>
 
 <!-- AUTH ESTATE BADGE (injected by JS) -->

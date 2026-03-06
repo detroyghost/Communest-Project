@@ -812,7 +812,7 @@ p { color: var(--text-3); }
 
 .dash-layout {
   display: grid;
-  grid-template-columns: 245px 1fr;
+  grid-template-columns: 1fr;
   min-height: calc(100vh - 68px);
 }
 
@@ -825,8 +825,10 @@ p { color: var(--text-3); }
   height: calc(100vh - 68px);
   overflow-y: auto;
   transition: background 0.35s;
-  display: flex;
+  display: none;
   flex-direction: column;
+  width: 245px;
+  min-width: 245px;
 }
 .dash-sidebar::-webkit-scrollbar { width: 4px; }
 .dash-sidebar::-webkit-scrollbar-thumb { background: rgba(79,195,247,.2); border-radius: 4px; }
@@ -1312,8 +1314,7 @@ tr:hover td { background: var(--row-hover); }
   .hero-cards { display: none; }
   .about-layout { grid-template-columns: 1fr; }
   .contact-layout { grid-template-columns: 1fr; }
-  .dash-layout { grid-template-columns: 1fr; }
-  .dash-sidebar { display: none; }
+  /* sidebar handled by .sb-open toggle */
   .form-row { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
 }
@@ -2716,81 +2717,22 @@ tr:hover td { background: var(--row-hover); }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   ESTATES DIRECTORY — mobile sidebar toggle
+   COLLAPSIBLE SIDEBAR — open/close toggle (desktop + mobile)
 ═══════════════════════════════════════════════════════════════ */
 
-/* On desktop the sidebar is always visible as part of the layout */
-/* On mobile it slides in from the left when ☰ is tapped */
-@media (max-width: 900px) {
-  #page-estates .dash-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 280px;
-    max-width: 88vw;
-    z-index: 400;
-    transform: translateX(-100%);
-    transition: transform .3s cubic-bezier(.4,0,.2,1);
-    overflow-y: auto;
-    padding-top: 16px;
-    box-shadow: none;
-  }
-  #page-estates .dash-sidebar.mobile-open {
-    transform: translateX(0);
-    box-shadow: 8px 0 40px rgba(0,0,0,.55);
-  }
-  /* Overlay behind sidebar on mobile */
-  #estatesSidebarOverlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.55);
-    z-index: 399;
-  }
-  #estatesSidebarOverlay.active { display: block; }
-}
-
-
-/* Remove the mobile slide-in/toggle behaviour entirely */
-.sidebar-toggle-btn { display: none !important; }
-#estatesSidebarOverlay { display: none !important; }
-#page-estates .dash-sidebar,
-#page-estate  .dash-sidebar {
-  position: sticky !important;
-  top: 68px !important;
-  height: calc(100vh - 68px) !important;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-/* Narrow sidebar on small phones */
-@media (max-width: 480px) {
-  .dash-layout { grid-template-columns: 160px 1fr; }
-  .dash-sidebar { padding: 14px 8px !important; }
-  .dash-main { padding: 18px 12px; }
-  .sb-logo { font-size: .9rem; }
-  .si { font-size: .78rem; padding: 8px 8px; gap: 6px; }
-  .sb-lbl { font-size: .6rem; }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   COLLAPSIBLE SIDEBAR — open/close toggle on all screen sizes
-═══════════════════════════════════════════════════════════════ */
-
-/* Toggle button — always visible top-left of main content */
+/* Toggle button */
 .sb-toggle-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   background: var(--bg-3);
   border: 1px solid var(--border);
-  border-radius: 9px;
+  border-radius: 8px;
   color: var(--text-2);
   cursor: pointer;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   flex-shrink: 0;
   transition: background .2s, color .2s, border-color .2s;
   font-family: inherit;
@@ -2801,23 +2743,19 @@ tr:hover td { background: var(--row-hover); }
   color: var(--sky);
 }
 
-/* When sidebar is open — layout shows 2 columns */
-.dash-layout { grid-template-columns: 1fr; }
-.dash-layout.sb-open { grid-template-columns: 245px 1fr; }
-
-/* Sidebar hidden by default, shown when sb-open */
-.dash-sidebar {
-  display: none;
-  position: sticky;
-  top: 68px;
-  height: calc(100vh - 68px);
-  overflow-y: auto;
+/* Open state — sidebar visible, 2-column layout */
+.dash-layout.sb-open {
+  grid-template-columns: 245px 1fr;
 }
-.dash-layout.sb-open .dash-sidebar { display: flex; }
+.dash-layout.sb-open .dash-sidebar {
+  display: flex;
+}
 
-/* On mobile — sidebar overlays instead of pushing content */
+/* Mobile: sidebar overlays content instead of pushing it */
 @media (max-width: 768px) {
-  .dash-layout.sb-open { grid-template-columns: 1fr; }
+  .dash-layout.sb-open {
+    grid-template-columns: 1fr;
+  }
   .dash-layout.sb-open .dash-sidebar {
     position: fixed;
     top: 0;
@@ -2825,7 +2763,7 @@ tr:hover td { background: var(--row-hover); }
     height: 100vh;
     width: 260px;
     z-index: 500;
-    box-shadow: 4px 0 32px rgba(0,0,0,.6);
+    box-shadow: 6px 0 40px rgba(0,0,0,.6);
   }
   .sb-overlay {
     display: none;

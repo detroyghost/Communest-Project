@@ -497,6 +497,7 @@ function renderEstateAbout(estate) {
           <div class="af"><div class="af-icon">👤</div><div><h4>Managed By</h4><p>${estate.managedBy}</p></div></div>
           <div class="af"><div class="af-icon">📞</div><div><h4>Phone</h4><p>${estate.phone}</p></div></div>
           <div class="af"><div class="af-icon">📧</div><div><h4>Email</h4><p>${estate.email}</p></div></div>
+          ${estate.titleDeed ? '<div class="af"><div class="af-icon">📜</div><div><h4>Title Deed Ref.</h4><p>' + estate.titleDeed + ' <span style=\"font-size:.72rem;color:var(--text-3)\">· Verifiable at Kenya Lands Registry</span></p></div></div>' : ''}
         </div>
       </div>
       <div class="about-panel">
@@ -1144,8 +1145,9 @@ function submitListEstate() {
   const mgrEmail = document.getElementById('leMgrEmail').value.trim();
   const mgrPhone = document.getElementById('leMgrPhone').value.trim();
   const mgrPass  = document.getElementById('leMgrPass').value;
-  const amenStr  = document.getElementById('leAmenities').value.trim();
-  const units    = parseInt(document.getElementById('leUnits').value) || 0;
+  const amenStr   = document.getElementById('leAmenities').value.trim();
+  const units     = parseInt(document.getElementById('leUnits').value) || 0;
+  const titleDeed = document.getElementById('leTitleDeed').value.trim();
 
   if (!name || !location || !desc || !mgrName || !mgrEmail || !mgrPhone) {
     alert('Please fill in all required fields (marked with *).'); return;
@@ -1164,6 +1166,7 @@ function submitListEstate() {
     amenities: amenStr ? amenStr.split(',').map(a => a.trim()).filter(Boolean) : [],
     phone: mgrPhone, email: mgrEmail, managedBy: mgrName,
     totalUnits: units,
+    titleDeed: titleDeed || null,
   });
 
   // Initialise empty data stores for this estate
@@ -1184,7 +1187,7 @@ function submitListEstate() {
   closeModal('listEstateModal');
 
   // Clear form
-  ['leEstateName','leLocation','leDesc','leAmenities','leUnits','leYear',
+  ['leEstateName','leLocation','leDesc','leTitleDeed','leAmenities','leUnits','leYear',
    'leMgrName','leMgrEmail','leMgrPhone','leMgrPass'].forEach(id => setValue(id, ''));
 
   // Refresh directory

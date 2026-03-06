@@ -1653,21 +1653,31 @@ function toggleChatbot() {
 ═══════════════════════════════════════════════════════ */
 let estatesSidebarOpen = false;
 
-function toggleEstatesSidebar() {
-  estatesSidebarOpen = !estatesSidebarOpen;
-  const sidebar  = document.querySelector('#page-estates .dash-sidebar');
-  const overlay  = document.getElementById('estatesSidebarOverlay');
-  const btn      = document.getElementById('estatesSidebarToggle');
-  if (sidebar)  sidebar.classList.toggle('mobile-open', estatesSidebarOpen);
-  if (overlay)  overlay.classList.toggle('active', estatesSidebarOpen);
-  if (btn)      btn.classList.toggle('active', estatesSidebarOpen);
+/* ── Sidebar open/close toggles ───────────────────────────────── */
+function toggleDirSidebar() {
+  const layout  = document.querySelector('#page-estates .dash-layout');
+  const overlay = document.getElementById('dirSbOverlay');
+  if (!layout) return;
+  const opening = !layout.classList.contains('sb-open');
+  layout.classList.toggle('sb-open', opening);
+  if (overlay) overlay.classList.toggle('visible', opening && window.innerWidth <= 768);
 }
 
-// Close sidebar when a filter is selected on mobile
+function toggleEstateSidebar() {
+  const layout  = document.querySelector('#page-estate .dash-layout');
+  const overlay = document.getElementById('estateSbOverlay');
+  if (!layout) return;
+  const opening = !layout.classList.contains('sb-open');
+  layout.classList.toggle('sb-open', opening);
+  if (overlay) overlay.classList.toggle('visible', opening && window.innerWidth <= 768);
+}
+
+// Open sidebars by default on desktop when page loads
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('#page-estates .si').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (window.innerWidth < 900 && estatesSidebarOpen) toggleEstatesSidebar();
-    });
-  });
+  if (window.innerWidth > 768) {
+    const dirLayout    = document.querySelector('#page-estates .dash-layout');
+    const estateLayout = document.querySelector('#page-estate .dash-layout');
+    if (dirLayout)    dirLayout.classList.add('sb-open');
+    if (estateLayout) estateLayout.classList.add('sb-open');
+  }
 });

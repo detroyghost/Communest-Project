@@ -1313,7 +1313,7 @@ tr:hover td { background: var(--row-hover); }
   .about-layout { grid-template-columns: 1fr; }
   .contact-layout { grid-template-columns: 1fr; }
   .dash-layout { grid-template-columns: 1fr; }
-  .dash-sidebar { position: static; height: auto; }
+  .dash-sidebar { display: none; }
   .form-row { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
 }
@@ -2527,32 +2527,9 @@ tr:hover td { background: var(--row-hover); }
 }
 .sidebar-overlay.active { display: block; }
 
-/* ── Mobile: sidebar slides in from left ─────────────────────────── */
+/* ── Mobile: sidebar toggle button + chatbot ─────────────────────── */
 @media (max-width: 900px) {
-  /* Show toggle button on mobile */
   .sidebar-toggle-btn { display: flex; align-items: center; }
-
-  /* Estate directory sidebar — hidden off-screen by default on mobile */
-  #page-estates .dash-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 280px;
-    z-index: 300;
-    transform: translateX(-100%);
-    transition: transform .3s cubic-bezier(.4,0,.2,1);
-    box-shadow: none;
-    border-radius: 0;
-    overflow-y: auto;
-    padding-top: 60px;
-  }
-  #page-estates .dash-sidebar.mobile-open {
-    transform: translateX(0);
-    box-shadow: 4px 0 32px rgba(0,0,0,0.5);
-  }
-
-  /* Chatbot fab moves up a bit on mobile to avoid overlap */
   .chatbot-fab { bottom: 20px; right: 18px; width: 58px; height: 58px; }
   .chatbot-widget { bottom: 96px; right: 10px; width: calc(100vw - 20px); border-radius: 18px; }
 }
@@ -2772,4 +2749,93 @@ tr:hover td { background: var(--row-hover); }
     z-index: 399;
   }
   #estatesSidebarOverlay.active { display: block; }
+}
+
+
+/* Remove the mobile slide-in/toggle behaviour entirely */
+.sidebar-toggle-btn { display: none !important; }
+#estatesSidebarOverlay { display: none !important; }
+#page-estates .dash-sidebar,
+#page-estate  .dash-sidebar {
+  position: sticky !important;
+  top: 68px !important;
+  height: calc(100vh - 68px) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Narrow sidebar on small phones */
+@media (max-width: 480px) {
+  .dash-layout { grid-template-columns: 160px 1fr; }
+  .dash-sidebar { padding: 14px 8px !important; }
+  .dash-main { padding: 18px 12px; }
+  .sb-logo { font-size: .9rem; }
+  .si { font-size: .78rem; padding: 8px 8px; gap: 6px; }
+  .sb-lbl { font-size: .6rem; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COLLAPSIBLE SIDEBAR — open/close toggle on all screen sizes
+═══════════════════════════════════════════════════════════════ */
+
+/* Toggle button — always visible top-left of main content */
+.sb-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text-2);
+  cursor: pointer;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  transition: background .2s, color .2s, border-color .2s;
+  font-family: inherit;
+}
+.sb-toggle-btn:hover {
+  background: rgba(79,195,247,.12);
+  border-color: rgba(79,195,247,.4);
+  color: var(--sky);
+}
+
+/* When sidebar is open — layout shows 2 columns */
+.dash-layout { grid-template-columns: 1fr; }
+.dash-layout.sb-open { grid-template-columns: 245px 1fr; }
+
+/* Sidebar hidden by default, shown when sb-open */
+.dash-sidebar {
+  display: none;
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+}
+.dash-layout.sb-open .dash-sidebar { display: flex; }
+
+/* On mobile — sidebar overlays instead of pushing content */
+@media (max-width: 768px) {
+  .dash-layout.sb-open { grid-template-columns: 1fr; }
+  .dash-layout.sb-open .dash-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    z-index: 500;
+    box-shadow: 4px 0 32px rgba(0,0,0,.6);
+  }
+  .sb-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 499;
+  }
+  .sb-overlay.visible { display: block; }
+}
+@media (min-width: 769px) {
+  .sb-overlay { display: none !important; }
 }

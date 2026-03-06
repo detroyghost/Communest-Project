@@ -149,17 +149,41 @@ const PAYMENTS = {
 
 
 /* ─────────────────────────────────────────────────────
-   3. THEME
+   3. THEME  (mobile-safe)
 ───────────────────────────────────────────────────── */
 const htmlEl = document.documentElement;
 
+// Safe storage: tries localStorage first, falls back to sessionStorage, then memory
+const ThemeStore = {
+  _mem: null,
+  get() {
+    try { const v = localStorage.getItem('communest-theme'); if (v) return v; } catch(e) {}
+    try { const v = sessionStorage.getItem('communest-theme'); if (v) return v; } catch(e) {}
+    return this._mem;
+  },
+  set(v) {
+    this._mem = v;
+    try { localStorage.setItem('communest-theme', v); } catch(e) {}
+    try { sessionStorage.setItem('communest-theme', v); } catch(e) {}
+  }
+};
+
 function applyTheme(t) {
+  // Force explicit theme — never let system dark mode bleed through
+  t = (t === 'dark') ? 'dark' : 'light';
   htmlEl.setAttribute('data-theme', t);
-  try { localStorage.setItem('communest-theme', t); } catch(e) {}
+  // Explicitly set color-scheme on <html> so iOS Safari respects it for system UI
+  htmlEl.style.colorScheme = t;
+  // Sync toggle button visual
+  const toggle = document.getElementById('themeToggle');
+  if (toggle) toggle.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+  ThemeStore.set(t);
 }
+
+// On first load: use saved preference, or default to LIGHT (ignore system preference)
 (function() {
-  try { applyTheme(localStorage.getItem('communest-theme') || 'light'); }
-  catch(e) { applyTheme('light'); }
+  const saved = ThemeStore.get();
+  applyTheme(saved || 'light');
 })();
 
 document.getElementById('themeToggle').addEventListener('click', () => {

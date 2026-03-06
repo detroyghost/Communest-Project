@@ -820,15 +820,12 @@ p { color: var(--text-3); }
   background: var(--sidebar);
   color: #fff;
   padding: 28px 18px;
-  position: sticky;
-  top: 68px;
-  height: calc(100vh - 68px);
   overflow-y: auto;
-  transition: background 0.35s;
-  display: none;
   flex-direction: column;
   width: 245px;
   min-width: 245px;
+  /* display and position controlled by sb-open + media queries */
+  display: none;
 }
 .dash-sidebar::-webkit-scrollbar { width: 4px; }
 .dash-sidebar::-webkit-scrollbar-thumb { background: rgba(79,195,247,.2); border-radius: 4px; }
@@ -2717,10 +2714,10 @@ tr:hover td { background: var(--row-hover); }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   COLLAPSIBLE SIDEBAR — open/close toggle (desktop + mobile)
+   COLLAPSIBLE SIDEBAR — clean open/close, desktop + mobile
 ═══════════════════════════════════════════════════════════════ */
 
-/* Toggle button */
+/* Toggle button — always shown */
 .sb-toggle-btn {
   display: inline-flex;
   align-items: center;
@@ -2732,7 +2729,7 @@ tr:hover td { background: var(--row-hover); }
   border-radius: 8px;
   color: var(--text-2);
   cursor: pointer;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
   transition: background .2s, color .2s, border-color .2s;
   font-family: inherit;
@@ -2743,37 +2740,70 @@ tr:hover td { background: var(--row-hover); }
   color: var(--sky);
 }
 
-/* Open state — sidebar visible, 2-column layout */
-.dash-layout.sb-open {
-  grid-template-columns: 245px 1fr;
-}
-.dash-layout.sb-open .dash-sidebar {
-  display: flex;
+/* ── DESKTOP (769px and above) ─────────────────────────────── */
+@media (min-width: 769px) {
+  /* Closed: single column */
+  .dash-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    min-height: calc(100vh - 68px);
+  }
+  /* Open: sidebar + content */
+  .dash-layout.sb-open {
+    grid-template-columns: 245px 1fr;
+  }
+  /* Show sidebar when open */
+  .dash-layout.sb-open .dash-sidebar {
+    display: flex;
+    position: sticky;
+    top: 68px;
+    height: calc(100vh - 68px);
+    flex-direction: column;
+  }
+  /* Overlay never needed on desktop */
+  .sb-overlay { display: none !important; }
 }
 
-/* Mobile: sidebar overlays content instead of pushing it */
+/* ── MOBILE (768px and below) ──────────────────────────────── */
 @media (max-width: 768px) {
+  /* Layout always single column */
+  .dash-layout,
   .dash-layout.sb-open {
+    display: grid;
     grid-template-columns: 1fr;
+    min-height: calc(100vh - 68px);
   }
-  .dash-layout.sb-open .dash-sidebar {
+  /* Sidebar: always fixed, always rendered, slides off-screen when closed */
+  .dash-sidebar {
+    display: flex !important;
+    flex-direction: column;
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
-    width: 260px;
-    z-index: 500;
-    box-shadow: 6px 0 40px rgba(0,0,0,.6);
+    width: 270px;
+    max-width: 82vw;
+    z-index: 600;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    background: var(--sidebar);
+    padding: 24px 14px;
+    overflow-y: auto;
   }
+  /* Open: slide in */
+  .dash-layout.sb-open .dash-sidebar {
+    transform: translateX(0);
+    box-shadow: 6px 0 40px rgba(0,0,0,.65);
+  }
+  /* Dark overlay */
   .sb-overlay {
     display: none;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,.5);
-    z-index: 499;
+    z-index: 599;
   }
-  .sb-overlay.visible { display: block; }
-}
-@media (min-width: 769px) {
-  .sb-overlay { display: none !important; }
+  .sb-overlay.visible {
+    display: block;
+  }
 }

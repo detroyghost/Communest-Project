@@ -168,6 +168,7 @@ function showPage(pageId) {
   });
   document.getElementById('navLinks').classList.remove('mobile-open');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (typeof applySidebarDefaults === 'function') applySidebarDefaults();
 }
 
 document.querySelectorAll('.nav-link[data-page]').forEach(l => {
@@ -414,9 +415,15 @@ function openEstatePage(estateId, panelToOpen) {
     document.getElementById('estateSidebarRole').textContent = 'Public View';
   }
 
-  // Wire up sidebar panel buttons
+  // Wire up sidebar panel buttons — also close sidebar on mobile after selecting
   document.querySelectorAll('#page-estate .si[data-panel]').forEach(btn => {
     btn.onclick = () => {
+      if (window.innerWidth <= 768) {
+        const layout  = document.querySelector('#page-estate .dash-layout');
+        const overlay = document.getElementById('estateSbOverlay');
+        if (layout)  layout.classList.remove('sb-open');
+        if (overlay) overlay.classList.remove('visible');
+      }
       document.querySelectorAll('#page-estate .si').forEach(s => s.classList.remove('active'));
       btn.classList.add('active');
       document.querySelectorAll('#page-estate .dp').forEach(p => p.classList.remove('active'));
@@ -1672,12 +1679,13 @@ function toggleEstateSidebar() {
   if (overlay) overlay.classList.toggle('visible', opening && window.innerWidth <= 768);
 }
 
-// Open sidebars by default on desktop when page loads
-document.addEventListener('DOMContentLoaded', () => {
+// Apply sb-open on desktop whenever called (on load + on page navigation)
+function applySidebarDefaults() {
   if (window.innerWidth > 768) {
     const dirLayout    = document.querySelector('#page-estates .dash-layout');
     const estateLayout = document.querySelector('#page-estate .dash-layout');
     if (dirLayout)    dirLayout.classList.add('sb-open');
     if (estateLayout) estateLayout.classList.add('sb-open');
   }
-});
+}
+document.addEventListener('DOMContentLoaded', applySidebarDefaults);

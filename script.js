@@ -182,7 +182,25 @@ document.getElementById('hamburger').addEventListener('click', () => {
 /* ─────────────────────────────────────────────────────
    5. MODAL SYSTEM
 ───────────────────────────────────────────────────── */
-function openModal(id) { const el = document.getElementById(id); if (el) el.classList.add('open'); }
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('open');
+  // If opening auth modal, show which estate the user is signing into
+  if (id === 'authModal') {
+    const eid = window._signingIntoEstateId;
+    const estate = eid ? ESTATES.find(e => e.id === eid) : null;
+    const tag = document.getElementById('authEstateBadge');
+    if (tag) {
+      if (estate) {
+        tag.innerHTML = '<div class="auth-estate-badge">🏘️ Signing into <strong>' + estate.name + '</strong> · ' + estate.location + '</div>';
+        tag.style.display = 'block';
+      } else {
+        tag.style.display = 'none';
+      }
+    }
+  }
+}
 function closeModal(id) { const el = document.getElementById(id); if (el) el.classList.remove('open'); }
 
 document.querySelectorAll('.overlay').forEach(o => {
@@ -202,6 +220,96 @@ function authTab(tab) {
 /* ─────────────────────────────────────────────────────
    6. AUTHENTICATION
 ───────────────────────────────────────────────────── */
+
+// Estate Auth Modal — auto-detects estate from email as user types
+function openEstateAuthModal() {
+  openModal('estateAuthModal');
+  // Reset state
+  document.getElementById('eaEmail').value = '';
+  document.getElementById('eaPassword').value = '';
+  document.getElementById('eaEstateBadge').style.display = 'none';
+  document.getElementById('eaPasswordWrap').style.display = 'none';
+  document.getElementById('eaSubmitBtn').style.display = 'none';
+  document.getElementById('eaEmailHint').textContent = '';
+  setTimeout(() => document.getElementById('eaEmail').focus(), 200);
+}
+
+function onEstateEmailInput() {
+  const email = document.getElementById('eaEmail').value.trim().toLowerCase();
+  const badge = document.getElementById('eaEstateBadge');
+  const passWrap = document.getElementById('eaPasswordWrap');
+  const submitBtn = document.getElementById('eaSubmitBtn');
+  const hint = document.getElementById('eaEmailHint');
+
+  // Look up user by email
+  const user = USERS.find(u => u.email.toLowerCase() === email);
+
+  if (!user) {
+    // Hide estate badge and password while typing / unrecognised
+    badge.style.display = 'none';
+    passWrap.style.display = 'none';
+    submitBtn.style.display = 'none';
+    hint.textContent = email.includes('@') && email.includes('.') ? 'No account found for this email.' : '';
+    hint.style.color = 'var(--text-3)';
+    return;
+  }
+
+  // User found — show their estate
+  const estate = user.estateId ? ESTATES.find(e => e.id === user.estateId) : null;
+  if (estate) {
+    badge.style.display = 'flex';
+    badge.innerHTML =
+      '<span class="estate-auth-emoji">' + estate.emoji + '</span>' +
+      '<div><div class="estate-auth-chosen-name">' + estate.name + '</div>' +
+      '<div class="estate-auth-chosen-loc">📍 ' + estate.location + ' &nbsp;·&nbsp; ' +
+      (user.role === 'management' ? '🔧 Manager' : '🏠 ' + (user.unit ? 'Unit ' + user.unit : 'Tenant')) +
+      '</div></div>';
+    hint.textContent = '';
+  } else {
+    badge.style.display = 'none';
+    hint.textContent = 'Account found — not yet connected to an estate.';
+    hint.style.color = 'var(--sky)';
+  }
+
+  passWrap.style.display = 'block';
+  submitBtn.style.display = 'block';
+  setTimeout(() => document.getElementById('eaPassword').focus(), 80);
+}
+
+function doEstateLogin() {
+  const email = document.getElementById('eaEmail').value.trim().toLowerCase();
+  const pass  = document.getElementById('eaPassword').value;
+  const user  = USERS.find(u => u.email.toLowerCase() === email && u.password === pass);
+
+  if (!user) {
+    const hint = document.getElementById('eaEmailHint');
+    hint.textContent = '❌ Wrong password. Please try again.';
+    hint.style.color = '#F87171';
+    document.getElementById('eaPassword').focus();
+    return;
+  }
+
+  currentUser = user;
+  closeModal('estateAuthModal');
+
+  // Update nav button to initials
+  const navBtn = document.getElementById('navSignInBtn');
+  const initials = user.name.split(' ').map(n => n[0]).join('').slice(0, 2);
+  navBtn.textContent = initials;
+  navBtn.style.cssText = 'border-radius:50%;width:34px;padding:0;height:34px;';
+  navBtn.onclick = () => { if (confirm('Sign out?')) doSignout(); };
+
+  // Route to their estate
+  if (user.role === 'management') {
+    openEstatePage(user.estateId, 'ep-mgmt-overview');
+  } else if (user.role === 'tenant' && user.estateId) {
+    openEstatePage(user.estateId, 'ep-overview');
+  } else {
+    showPage('estates');
+    alert('Welcome, ' + user.name.split(' ')[0] + '! Your account is not yet linked to an estate. Browse and apply for a house.');
+  }
+}
+
 function doLogin() {
   const email = document.getElementById('siEmail').value.trim().toLowerCase();
   const pass  = document.getElementById('siPassword').value;
@@ -258,9 +366,9 @@ function doSignup() {
 function doSignout() {
   currentUser = null;
   const navBtn = document.getElementById('navSignInBtn');
-  navBtn.textContent = 'Sign In';
+  navBtn.textContent = 'Register';
   navBtn.style.cssText = '';
-  navBtn.onclick = () => openModal('authModal');
+  navBtn.onclick = () => { window._signingIntoEstateId = null; openModal('authModal'); authTab('signup'); };
   // Reset estate sidebar
   document.getElementById('tenantNav').style.display = 'none';
   document.getElementById('mgmtNav').style.display   = 'none';
@@ -291,6 +399,8 @@ function openEstatePage(estateId, panelToOpen) {
   document.getElementById('tenantNav').style.display = isTenantHere ? 'block' : 'none';
   document.getElementById('mgmtNav').style.display   = isMgrHere    ? 'block' : 'none';
   document.getElementById('sidebarSignIn').style.display = currentUser ? 'none'  : 'block';
+  // Store current estate context so auth modal can show estate name
+  window._signingIntoEstateId = estateId;
   document.getElementById('sidebarUser').style.display   = currentUser ? 'block' : 'none';
 
   if (currentUser) {
@@ -1298,3 +1408,151 @@ function deleteEstatePhoto(idx, eid) {
   ESTATE_PHOTOS[eid].splice(idx, 1);
   renderMgmtPanels();
 }
+
+
+
+/* ═══════════════════════════════════════════════════════
+   CHATBOT — Communest Navigation Assistant
+═══════════════════════════════════════════════════════ */
+let chatbotOpen = false;
+
+const CHAT_KNOWLEDGE = {
+  greet: ['hi','hello','hey','good morning','good afternoon','good evening','sup'],
+  browse: ['browse','estates','find home','find a home','explore','listings','list'],
+  apply: ['apply','application','how to apply','house','available','rent','pricing','price','how much'],
+  signin: ['sign in','login','log in','account','password','forgot','credentials','demo'],
+  register: ['register','sign up','create account','new account','join'],
+  tenant: ['tenant','dashboard','my estate','requests','announcements','rent','payments','lease'],
+  management: ['management','manager','manage','manage houses','add house','post announcement','applications'],
+  inquiry: ['inquiry','inquire','question','contact','viewing','visit'],
+  about: ['about','history','developer','communest','platform','pioneer','university'],
+  photos: ['photos','gallery','pictures','images','upload','photo'],
+  dark: ['dark mode','theme','dark','light mode'],
+  help: ['help','what can you do','options','menu','navigate','navigation'],
+};
+
+const CHAT_RESPONSES = {
+  greet: () => `Hi there! 👋 I'm the Communest Assistant. I can help you navigate the platform.\n\nTry asking me:\n• "How do I find a house?"\n• "How do I sign in?"\n• "What is Communest?"\n• "How do I send an inquiry?"`,
+  browse: () => { const avail = Object.values(HOUSES).flat().filter(h=>h.status==='Available').length; return `We currently have **${ESTATES.length} estates** listed with **${avail} available houses**.\n\nClick **Estates** in the navbar or tap the button below to browse all estates. Use the sidebar to filter by location or availability.`; },
+  apply: () => `To apply for a house:\n1. Go to **Estates** and click any estate\n2. Browse the **Available Houses**\n3. Click **📷 Photos** to view the unit\n4. Click **Apply for This House** and fill in your details\n5. Management will review and connect your account once approved.`,
+  signin: () => `To sign in:\n1. Click **Sign In / Register** in the top right\n2. Enter your email and password\n3. You'll be taken straight to your estate dashboard\n\nDemo accounts:\n• Tenant: shammah@email.com / ten123\n• Manager: james@sunrise.ke / mgr123`,
+  register: () => `To create an account:\n1. Click **Sign In / Register** in the top navbar\n2. Switch to the **Register** tab\n3. Fill in your name, email, phone, and password\n4. After registering, browse estates and apply for a house — management will connect you once approved.`,
+  tenant: () => `As a tenant, your dashboard gives you:\n• 📊 **Overview** — quick summary of your estate\n• 🔧 **My Requests** — submit and track maintenance issues\n• 📢 **Announcements** — estate notices from management\n• 💳 **Rent & Payments** — payment history\n• 📄 **My Lease** — your lease details and dates\n\nSign in with your estate credentials to access these.`,
+  management: () => `As a manager, your dashboard includes:\n• 📊 Overview & stats\n• 🔧 Tenant requests\n• 📢 Post announcements\n• 👥 Manage tenants\n• 📋 Review applications\n• 🏠 Add / manage houses\n• 🖼️ Upload estate photos\n• 💬 View public inquiries`,
+  inquiry: () => `To send an inquiry to an estate:\n1. Go to **Estates** and click the estate you're interested in\n2. Click **💬 Send Inquiry** in the sidebar\n3. Fill in your name, email, phone, subject and message\n4. Management will respond within 24 hours.`,
+  about: () => `Communest was built by **Kipngeno Shammah Kiplangat** (BIT/0935/2022) at Pioneer International University, supervised by Dr. Odoyo.\n\nIt's a digital estate management platform serving landlords and tenants across Kenya.\n\nClick **About** in the navbar to read the full story.`,
+  photos: () => `Each house listing has a photo gallery. Click the **📷 Photos** button on any house card to view uploaded photos.\n\nIf you're a manager, you can:\n• Upload house photos via the gallery in **Manage Houses**\n• Upload estate-wide photos in **🖼️ Estate Photos** panel`,
+  dark: () => `The platform uses a dark theme throughout for a comfortable experience on all devices.`,
+  help: () => `I can help you with:\n• 🏙️ Browsing estates\n• 🏠 Finding & applying for houses\n• 🔑 Signing in or registering\n• 💬 Sending inquiries\n• 📊 Using your tenant or management dashboard\n• ℹ️ Learning about Communest\n\nJust type your question!`,
+};
+
+function matchChatIntent(msg) {
+  const m = msg.toLowerCase();
+  for (const [intent, keywords] of Object.entries(CHAT_KNOWLEDGE)) {
+    if (keywords.some(kw => m.includes(kw))) return intent;
+  }
+  return null;
+}
+
+function chatBubble(text, from) {
+  const msgs = document.getElementById('chatbotMsgs');
+  const wrap = document.createElement('div');
+  wrap.className = 'chat-msg-wrap' + (from === 'user' ? ' user' : '');
+
+  if (from === 'bot') {
+    const av = document.createElement('div');
+    av.className = 'chat-msg-mini-avatar';
+    av.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="8" width="18" height="13" rx="3" fill="#4FC3F7" opacity=".85"/><rect x="7" y="11" width="3" height="3" rx="1.5" fill="#071422"/><rect x="14" y="11" width="3" height="3" rx="1.5" fill="#071422"/><rect x="11" y="4" width="2" height="4" rx="1" fill="#4FC3F7" opacity=".6"/><circle cx="12" cy="3.5" r="1.5" fill="#4FC3F7"/></svg>';
+    wrap.appendChild(av);
+  }
+
+  const div = document.createElement('div');
+  div.className = 'chat-msg chat-msg-' + from;
+  div.innerHTML = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+  wrap.appendChild(div);
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Hide suggestions once conversation starts
+  const sugg = document.getElementById('chatbotSuggestions');
+  if (sugg && msgs.children.length > 2) sugg.style.display = 'none';
+}
+
+function chatTyping() {
+  const msgs = document.getElementById('chatbotMsgs');
+  const wrap = document.createElement('div');
+  wrap.className = 'chat-typing-wrap';
+  wrap.id = 'chatTyping';
+
+  const av = document.createElement('div');
+  av.className = 'chat-msg-mini-avatar';
+  av.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="8" width="18" height="13" rx="3" fill="#4FC3F7" opacity=".85"/><rect x="7" y="11" width="3" height="3" rx="1.5" fill="#071422"/><rect x="14" y="11" width="3" height="3" rx="1.5" fill="#071422"/><rect x="11" y="4" width="2" height="4" rx="1" fill="#4FC3F7" opacity=".6"/><circle cx="12" cy="3.5" r="1.5" fill="#4FC3F7"/></svg>';
+  wrap.appendChild(av);
+
+  const dots = document.createElement('div');
+  dots.className = 'chat-typing';
+  dots.innerHTML = '<span></span><span></span><span></span>';
+  wrap.appendChild(dots);
+
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function sendChatMsg() {
+  const input = document.getElementById('chatbotInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  chatBubble(msg, 'user');
+  chatTyping();
+  setTimeout(() => {
+    document.getElementById('chatTyping')?.remove();
+    const intent = matchChatIntent(msg);
+    const reply = intent
+      ? CHAT_RESPONSES[intent]()
+      : `I'm not sure about that, but here's what I can help with:\n• Browse estates → click "Estates" in the navbar\n• Find a house → go to any estate and view Available Houses\n• Sign in → click "Sign In / Register" top right\n• Send inquiry → open an estate and click "💬 Send Inquiry"\n\nType "help" for a full list of topics!`;
+    chatBubble(reply, 'bot');
+  }, 800);
+}
+
+function quickChat(msg) {
+  document.getElementById('chatbotInput').value = msg;
+  sendChatMsg();
+}
+
+function toggleChatbot() {
+  chatbotOpen = !chatbotOpen;
+  const widget = document.getElementById('chatbotWidget');
+  const fab    = document.getElementById('chatbotFab');
+  widget.classList.toggle('open', chatbotOpen);
+  fab.classList.toggle('hidden', chatbotOpen);
+  if (chatbotOpen && document.getElementById('chatbotMsgs').children.length === 0) {
+    setTimeout(() => chatBubble(CHAT_RESPONSES.greet(), 'bot'), 300);
+  }
+  if (chatbotOpen) setTimeout(() => document.getElementById('chatbotInput')?.focus(), 350);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE SIDEBAR TOGGLE — Estates Directory
+═══════════════════════════════════════════════════════ */
+let estatesSidebarOpen = false;
+
+function toggleEstatesSidebar() {
+  estatesSidebarOpen = !estatesSidebarOpen;
+  const sidebar  = document.querySelector('#page-estates .dash-sidebar');
+  const overlay  = document.getElementById('estatesSidebarOverlay');
+  const btn      = document.getElementById('estatesSidebarToggle');
+  if (sidebar)  sidebar.classList.toggle('mobile-open', estatesSidebarOpen);
+  if (overlay)  overlay.classList.toggle('active', estatesSidebarOpen);
+  if (btn)      btn.classList.toggle('active', estatesSidebarOpen);
+}
+
+// Close sidebar when a filter is selected on mobile
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('#page-estates .si').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (window.innerWidth < 900 && estatesSidebarOpen) toggleEstatesSidebar();
+    });
+  });
+});

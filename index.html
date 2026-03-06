@@ -25,7 +25,7 @@
       <a class="nav-link"        data-page="about"   href="#">About</a>
     </div>
     <div class="nav-actions">
-      <button class="btn btn-sm nav-cta" id="navSignInBtn" onclick="openModal('authModal')">Sign In</button>
+      <button class="btn btn-sm nav-cta" id="navSignInBtn" onclick="window._signingIntoEstateId=null;openModal('authModal');authTab('signup');">Register</button>
       <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -45,7 +45,7 @@
         <p>Browse listed estates, view available houses, and apply online. Once you're a resident, access your estate's private dashboard — requests, rent, and announcements all in one place.</p>
         <div class="hero-btns">
           <button class="btn btn-primary btn-lg" onclick="showPage('estates')">Browse Estates →</button>
-          <button class="btn btn-outline btn-lg" onclick="openModal('authModal')">Sign In to My Estate</button>
+          <button class="btn btn-outline btn-lg" onclick="openEstateAuthModal()">Sign In to My Estate</button>
         </div>
         <div class="hero-stats">
           <div class="hstat"><span class="hstat-num" id="heroEstateCount">6</span><span class="hstat-lbl">Listed Estates</span></div>
@@ -124,11 +124,14 @@
         <button class="si si-back" onclick="showPage('home')" style="margin-top:8px">← Home</button>
       </nav>
     </aside>
-    <div class="dash-main">
+    <div class="dash-main" id="estatesDashMain">
       <div class="dp-hdr" style="margin-bottom:20px">
-        <div>
-          <h2 id="estDirTitle">All Listed Estates</h2>
-          <div id="estDirSubtitle" style="font-size:.83rem;color:var(--text-3);margin-top:3px">Browse and click any estate to explore</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="sidebar-toggle-btn" id="estatesSidebarToggle" onclick="toggleEstatesSidebar()" aria-label="Toggle filters">☰</button>
+          <div>
+            <h2 id="estDirTitle">All Listed Estates</h2>
+            <div id="estDirSubtitle" style="font-size:.83rem;color:var(--text-3);margin-top:3px">Browse and click any estate to explore</div>
+          </div>
         </div>
       </div>
       <div class="filter-bar" style="margin-bottom:24px">
@@ -137,6 +140,7 @@
       <div class="houses-grid" id="estatesDirectoryGrid"></div>
     </div>
   </div>
+  <div class="sidebar-overlay" id="estatesSidebarOverlay" onclick="toggleEstatesSidebar()"></div>
   <footer class="site-footer">© 2026 Communest</footer>
 </section>
 
@@ -322,7 +326,7 @@
 
         <span class="sb-lbl">ACCOUNT</span>
         <div id="sidebarSignIn">
-          <button class="si" onclick="openModal('authModal')">🔑 Sign In to My Estate</button>
+          <button class="si" onclick="openEstateAuthModal()">🔑 Sign In to My Estate</button>
         </div>
         <div id="sidebarUser" style="display:none">
           <button class="si" id="sidebarUserName" style="cursor:default;opacity:.7;pointer-events:none"></button>
@@ -622,6 +626,53 @@
 </div>
 
 <!-- Auth -->
+<!-- Estate Sign In Modal — auto-detects estate from email -->
+<div class="overlay" id="estateAuthModal">
+  <div class="modal estate-auth-modal">
+    <div class="modal-hdr">
+      <div>
+        <h3>Sign In to Your Estate</h3>
+        <p style="font-size:.8rem;color:var(--text-3);margin-top:3px">For residents &amp; estate managers</p>
+      </div>
+      <button class="modal-x" onclick="closeModal('estateAuthModal')">&#x2715;</button>
+    </div>
+
+    <!-- Email field — estate auto-detects as you type -->
+    <div class="form-group">
+      <label>Your Email</label>
+      <input class="input" id="eaEmail" type="email" placeholder="your@email.com"
+        oninput="onEstateEmailInput()"
+        onkeydown="if(event.key==='Enter')document.getElementById('eaPassword').focus()"
+        autocomplete="email" />
+      <div id="eaEmailHint" style="font-size:.76rem;margin-top:6px;min-height:16px;transition:color .2s"></div>
+    </div>
+
+    <!-- Auto-detected estate badge (shown after valid email) -->
+    <div id="eaEstateBadge" class="estate-auth-chosen" style="display:none;margin-bottom:16px"></div>
+
+    <!-- Password (revealed after estate detected) -->
+    <div id="eaPasswordWrap" style="display:none">
+      <div class="estate-auth-divider"><span>Enter your password</span></div>
+      <div class="form-group">
+        <label>Password</label>
+        <input class="input" id="eaPassword" type="password" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;"
+          onkeydown="if(event.key==='Enter')doEstateLogin()"
+          autocomplete="current-password" />
+      </div>
+    </div>
+
+    <button id="eaSubmitBtn" class="btn btn-primary btn-full" onclick="doEstateLogin()" style="display:none;margin-top:4px">
+      Sign In to My Estate &#x2192;
+    </button>
+
+    <p style="font-size:.75rem;text-align:center;margin-top:16px;color:var(--text-3)">
+      Not a resident yet?
+      <a href="#" onclick="closeModal('estateAuthModal');openModal('authModal');authTab('signup');return false;"
+         style="color:var(--sky);text-decoration:none;font-weight:600">Register here &#x2192;</a>
+    </p>
+  </div>
+</div>
+
 <div class="overlay" id="authModal">
   <div class="modal">
     <div class="modal-hdr">
@@ -637,8 +688,8 @@
       <div class="form-group"><label>Password</label><input class="input" id="siPassword" type="password" placeholder="••••••••" /></div>
       <button class="btn btn-primary btn-full" onclick="doLogin()" style="margin-top:4px">Sign In →</button>
       <p style="font-size:.78rem;margin-top:14px;text-align:center;color:var(--text-3)">
-        Demo — Tenant: <code>shammah@email.com</code> / <code>ten123</code><br>
-        Manager: <code>james@sunrise.ke</code> / <code>mgr123</code>
+        Demo — Tenant: <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="16657e777b7b777e56737b777f7a3875797b">[email&#160;protected]</a></code> / <code>ten123</code><br>
+        Manager: <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="385259555d4b784b4d564a514b5d16535d">[email&#160;protected]</a></code> / <code>mgr123</code>
       </p>
     </div>
     <div class="aform" id="signupForm">
@@ -811,12 +862,115 @@
       <textarea class="textarea" id="ahDesc" rows="3"></textarea>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeModal('addHouseModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="submitNewHouse()">Add House →</button>
+            <button class="btn btn-outline" onclick="closeModal('addHouseModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitNewHouse()">Add House &rarr;</button>
     </div>
   </div>
 </div>
 
-<script src="script.js"></script>
+<!-- CHATBOT -->
+<div id="chatbotWidget" class="chatbot-widget">
+
+  <!-- Decorative corner accents -->
+  <div class="cw-corner cw-tl"></div>
+  <div class="cw-corner cw-tr"></div>
+
+  <!-- Header -->
+  <div class="chatbot-header">
+    <div class="chatbot-header-left">
+      <div class="chatbot-avatar">
+        <!-- Bot face SVG -->
+        <svg class="bot-face-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Antenna -->
+          <line x1="24" y1="4" x2="24" y2="10" stroke="#7DD3FC" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="24" cy="3" r="2.5" fill="#38BDF8"/>
+          <!-- Head body -->
+          <rect x="8" y="10" width="32" height="26" rx="7" fill="url(#botGrad)"/>
+          <!-- Screen glare -->
+          <rect x="10" y="12" width="14" height="6" rx="2" fill="white" opacity=".06"/>
+          <!-- Eyes -->
+          <rect x="13" y="18" width="8" height="8" rx="3" fill="#0EA5E9" opacity=".9"/>
+          <rect x="27" y="18" width="8" height="8" rx="3" fill="#0EA5E9" opacity=".9"/>
+          <!-- Eye shine -->
+          <rect x="14.5" y="19.5" width="2.5" height="2.5" rx="1.2" fill="white" opacity=".7"/>
+          <rect x="28.5" y="19.5" width="2.5" height="2.5" rx="1.2" fill="white" opacity=".7"/>
+          <!-- Mouth line -->
+          <path d="M17 30 Q24 34.5 31 30" stroke="#7DD3FC" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <!-- Ears/arms -->
+          <rect x="3" y="16" width="5" height="9" rx="2.5" fill="#0D3A5C"/>
+          <rect x="40" y="16" width="5" height="9" rx="2.5" fill="#0D3A5C"/>
+          <!-- Ear detail -->
+          <rect x="4" y="18.5" width="3" height="1.5" rx=".75" fill="#38BDF8" opacity=".5"/>
+          <rect x="41" y="18.5" width="3" height="1.5" rx=".75" fill="#38BDF8" opacity=".5"/>
+          <!-- Gradient def -->
+          <defs>
+            <linearGradient id="botGrad" x1="8" y1="10" x2="40" y2="36" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#0D3A5C"/>
+              <stop offset="100%" stop-color="#0A2240"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <!-- Glow ring -->
+        <div class="avatar-ring"></div>
+      </div>
+      <div class="chatbot-title-wrap">
+        <div class="chatbot-title">Communest Assistant</div>
+        <div class="chatbot-status">
+          <span class="chatbot-status-dot"></span>
+          Always online
+        </div>
+      </div>
+    </div>
+    <button class="chatbot-close" onclick="toggleChatbot()" title="Close">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <!-- Divider line with scan effect -->
+  <div class="cw-scan-line"></div>
+
+  <!-- Body -->
+  <div class="chatbot-body" id="chatbotBody">
+    <div class="chatbot-msgs" id="chatbotMsgs"></div>
+
+    <!-- Quick chips -->
+    <div class="chatbot-suggestions" id="chatbotSuggestions">
+      <button class="chat-suggestion" onclick="quickChat('How do I find a house?')">🏠 Find a house</button>
+      <button class="chat-suggestion" onclick="quickChat('How do I sign in?')">🔑 Sign in</button>
+      <button class="chat-suggestion" onclick="quickChat('How do I send an inquiry?')">💬 Inquiry</button>
+      <button class="chat-suggestion" onclick="quickChat('What is Communest?')">ℹ️ About</button>
+    </div>
+
+    <!-- Input -->
+    <div class="chatbot-input-row">
+      <input class="chatbot-input" id="chatbotInput" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')sendChatMsg()" autocomplete="off"/>
+      <button class="chatbot-send" onclick="sendChatMsg()" title="Send">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M18 2L9 11" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M18 2L12.5 18L9 11L2 7.5L18 2Z" fill="white" opacity=".9"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="chatbot-fab" id="chatbotFab" onclick="toggleChatbot()" aria-label="Open Assistant">
+  <svg class="fab-bot-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="24" y1="5" x2="24" y2="11" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="24" cy="4" r="3" fill="white" opacity=".9"/>
+    <rect x="8" y="11" width="32" height="26" rx="7" fill="white" opacity=".93"/>
+    <rect x="13" y="19" width="8" height="8" rx="3" fill="#0288D1"/>
+    <rect x="27" y="19" width="8" height="8" rx="3" fill="#0288D1"/>
+    <rect x="15" y="21" width="2.5" height="2.5" rx="1.2" fill="white" opacity=".7"/>
+    <rect x="29" y="21" width="2.5" height="2.5" rx="1.2" fill="white" opacity=".7"/>
+    <path d="M17 31 Q24 35.5 31 31" stroke="#0288D1" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <rect x="3" y="17" width="5" height="9" rx="2.5" fill="white" opacity=".6"/>
+    <rect x="40" y="17" width="5" height="9" rx="2.5" fill="white" opacity=".6"/>
+  </svg>
+  <span class="chatbot-fab-label">Help</span>
+</button>
+
+<!-- AUTH ESTATE BADGE (injected by JS) -->
+<div id="authEstateBadge" style="display:none"></div>
+
+<script src="script.js".js"></script>
 </body>
 </html>

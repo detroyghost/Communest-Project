@@ -19,49 +19,6 @@
   --radius-xl:  24px;
 }
 
-/* LIGHT THEME */
-[data-theme="light"] {
-  --sky:           #4FC3F7;
-  --sky-dark:      #0288D1;
-  --sky-light:     #E1F5FE;
-  --sky-mid:       #B3E5FC;
-  --success:       #2E7D32;
-  --success-bg:    #E8F5E9;
-  --warning:       #E65100;
-  --warning-bg:    #FFF3E0;
-  --info:          #1565C0;
-  --info-bg:       #E3F2FD;
-
-  --bg:            #FFFFFF;
-  --bg-2:          #F5F8FB;
-  --bg-3:          #EBF4FB;
-  --card:          #FFFFFF;
-  --card-hover:    #F9FCFF;
-  --sidebar:       #0D1B2A;
-  --nav-bg:        rgba(255, 255, 255, 0.95);
-  --border:        #DDE3EA;
-  --border-focus:  #4FC3F7;
-
-  --text:          #0D1B2A;
-  --text-2:        #2A3B4C;
-  --text-3:        #5A6D7E;
-  --text-invert:   #FFFFFF;
-
-  --shadow-sm:     0 2px 8px rgba(13, 27, 42, 0.06);
-  --shadow:        0 4px 20px rgba(13, 27, 42, 0.09);
-  --shadow-lg:     0 12px 40px rgba(13, 27, 42, 0.13);
-  --shadow-sky:    0 6px 24px rgba(79, 195, 247, 0.30);
-
-  --hero-grad:     linear-gradient(135deg, #EBF8FF 0%, #DDE3EA 60%, #C5E8F8 100%);
-  --feat-grad:     linear-gradient(135deg, #F0F8FF, #E8EFF5);
-  --about-panel:   linear-gradient(145deg, #B3E5FC, #DDE3EA);
-
-  --row-hover:     #F0F7FC;
-  --thead-bg:      #EBF0F5;
-
-  color-scheme: light;
-}
-
 /* DARK THEME */
 [data-theme="dark"] {
   --sky:           #4FC3F7;
@@ -394,13 +351,6 @@ p { color: var(--text-3); }
 }
 
 /* THEME TOGGLE */
-.theme-toggle-wrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.t-sun, .t-moon { font-size: 0.85rem; }
-
 .theme-toggle {
   position: relative;
   width: 46px;
@@ -2210,83 +2160,3 @@ tr:hover td { background: var(--row-hover); }
   transition: opacity 0.2s;
 }
 .estate-photo-item:hover .estate-photo-del { opacity: 1; }
-
-
-/* ═══════════════════════════════════════════════════════════════
-   MOBILE LIGHT MODE FIX
-   iOS Safari & Android Chrome can bleed system dark mode colours
-   into elements even when data-theme="light" is set.
-   These rules explicitly lock colours per theme on mobile.
-   ═══════════════════════════════════════════════════════════════ */
-
-/* ── Prevent OS dark mode from overriding our light theme choice ── */
-/* When user has explicitly chosen light, never let @media dark bleed in */
-[data-theme="light"] {
-  color-scheme: light only;
-}
-[data-theme="dark"] {
-  color-scheme: dark only;
-}
-
-/* ── Force body/card backgrounds per theme, not system default ─── */
-[data-theme="light"] body  { background-color: #FFFFFF; color: #0D1B2A; }
-[data-theme="dark"]  body  { background-color: #0B1520; color: #DFF0FA; }
-
-[data-theme="light"] .modal        { background: #FFFFFF; }
-[data-theme="dark"]  .modal        { background: #152232; }
-
-[data-theme="light"] nav           { background: rgba(255,255,255,0.95); }
-[data-theme="dark"]  nav           { background: rgba(11,21,32,0.97); }
-
-/* ── Cards and sidebar ──────────────────────────────────────────── */
-[data-theme="light"] .house-card,
-[data-theme="light"] .ann-card,
-[data-theme="light"] .stat-card,
-[data-theme="light"] .rent-card,
-[data-theme="light"] .lease-card,
-[data-theme="light"] .abox,
-[data-theme="light"] .estate-card  { background: #FFFFFF; border-color: #DDE3EA; }
-
-[data-theme="dark"]  .house-card,
-[data-theme="dark"]  .ann-card,
-[data-theme="dark"]  .stat-card,
-[data-theme="dark"]  .rent-card,
-[data-theme="dark"]  .lease-card,
-[data-theme="dark"]  .abox,
-[data-theme="dark"]  .estate-card  { background: #152232; border-color: #1C3048; }
-
-/* ── Text colours — prevent system bleed ────────────────────────── */
-[data-theme="light"] h1,
-[data-theme="light"] h2,
-[data-theme="light"] h3,
-[data-theme="light"] h4            { color: #0D1B2A; }
-[data-theme="dark"]  h1,
-[data-theme="dark"]  h2,
-[data-theme="dark"]  h3,
-[data-theme="dark"]  h4            { color: #DFF0FA; }
-
-[data-theme="light"] p             { color: #5A6D7E; }
-[data-theme="dark"]  p             { color: #6A8BA0; }
-
-/* ── Table rows ──────────────────────────────────────────────────── */
-[data-theme="light"] table thead   { background: #EBF0F5; }
-[data-theme="dark"]  table thead   { background: #172437; }
-[data-theme="light"] table td,
-[data-theme="light"] table th      { color: #0D1B2A; border-color: #DDE3EA; }
-[data-theme="dark"]  table td,
-[data-theme="dark"]  table th      { color: #DFF0FA; border-color: #1C3048; }
-
-/* ── Button overrides for mobile webkit ─────────────────────────── */
-[data-theme="light"] .btn-primary  { background-color: #4FC3F7; color: #0D1B2A; }
-[data-theme="light"] .btn-outline  { background-color: transparent; color: #0D1B2A; border-color: #DDE3EA; }
-[data-theme="dark"]  .btn-primary  { background-color: #4FC3F7; color: #0D1B2A; }
-[data-theme="dark"]  .btn-outline  { background-color: transparent; color: #DFF0FA; border-color: #1C3048; }
-
-/* ── Sidebar always dark regardless of light mode ──────────────── */
-.dash-sidebar                       { background-color: #0D1B2A !important; }
-.dash-sidebar .sb-logo,
-.dash-sidebar .sb-role,
-.dash-sidebar .sb-lbl,
-.dash-sidebar .si                   { color: #9CBDD4; }
-.dash-sidebar .si:hover,
-.dash-sidebar .si.active            { background-color: rgba(79,195,247,0.12); color: #DFF0FA; }

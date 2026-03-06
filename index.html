@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
   <title>Communest — Digital Estate Management</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,9 +12,7 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════
-     NAVBAR
-═══════════════════════════════════════════ -->
+<!-- ═══════════ NAVBAR ═══════════ -->
 <nav id="navbar">
   <div class="nav-container">
     <a class="nav-logo" href="#" onclick="showPage('home');return false;">
@@ -26,13 +25,6 @@
       <a class="nav-link"        data-page="about"   href="#">About</a>
     </div>
     <div class="nav-actions">
-      <div class="theme-toggle-wrap">
-        <span class="t-sun">☀️</span>
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-          <div class="toggle-thumb"></div>
-        </button>
-        <span class="t-moon">🌙</span>
-      </div>
       <button class="btn btn-sm nav-cta" id="navSignInBtn" onclick="openModal('authModal')">Sign In</button>
       <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
     </div>
@@ -40,16 +32,11 @@
 </nav>
 
 
-<!-- ═══════════════════════════════════════════
-     HOME PAGE
-═══════════════════════════════════════════ -->
+<!-- ═══════════ HOME PAGE ═══════════ -->
 <section id="page-home" class="page active">
-
   <div class="hero">
     <div class="hero-shapes">
-      <div class="hs hs-1"></div>
-      <div class="hs hs-2"></div>
-      <div class="hs hs-3"></div>
+      <div class="hs hs-1"></div><div class="hs hs-2"></div><div class="hs hs-3"></div>
     </div>
     <div class="hero-inner">
       <div class="hero-text">
@@ -68,24 +55,18 @@
       </div>
       <div class="hero-cards">
         <div class="fcard fcard-1">
-          <div class="fcard-row">
-            <div class="fcard-icon">🏘️</div>
-            <div class="fcard-info"><b>Sunrise Gardens</b><span>Karen, Nairobi · 96 units</span></div>
-          </div>
+          <div class="fcard-row"><div class="fcard-icon">🏘️</div>
+            <div class="fcard-info"><b>Sunrise Gardens</b><span>Karen, Nairobi · 96 units</span></div></div>
           <p>2 houses available from KSh 9,500/mo</p>
         </div>
         <div class="fcard fcard-2">
-          <div class="fcard-row">
-            <div class="fcard-icon">🔧</div>
-            <div class="fcard-info"><b>Submit Requests</b><span>Direct to your estate management</span></div>
-          </div>
+          <div class="fcard-row"><div class="fcard-icon">🔧</div>
+            <div class="fcard-info"><b>Submit Requests</b><span>Direct to your estate management</span></div></div>
           <p>Complaints reach your manager instantly</p>
         </div>
         <div class="fcard fcard-3">
-          <div class="fcard-row">
-            <div class="fcard-icon">📢</div>
-            <div class="fcard-info"><b>Estate Announcements</b><span>Water supply update · 4 Mar 2026</span></div>
-          </div>
+          <div class="fcard-row"><div class="fcard-icon">📢</div>
+            <div class="fcard-info"><b>Estate Announcements</b><span>Water supply update · 4 Mar 2026</span></div></div>
           <p>Stay up to date with your estate</p>
         </div>
       </div>
@@ -112,18 +93,13 @@
       <button class="btn btn-outline btn-lg" onclick="showPage('estates')">View All Estates →</button>
     </div>
   </div>
-
   <footer class="site-footer">© 2026 Communest</footer>
 </section>
 
 
-<!-- ═══════════════════════════════════════════
-     ESTATES DIRECTORY  (with sidebar)
-═══════════════════════════════════════════ -->
+<!-- ═══════════ ESTATES DIRECTORY ═══════════ -->
 <section id="page-estates" class="page page-dash">
   <div class="dash-layout">
-
-    <!-- Estates Sidebar -->
     <aside class="dash-sidebar">
       <div class="sb-brand">
         <div class="sb-logo">Estates</div>
@@ -134,7 +110,6 @@
         <button class="si active" data-estates-filter="all">🏙️ All Estates</button>
         <button class="si" data-estates-filter="available">✅ Has Availability</button>
         <button class="si" data-estates-filter="new">🆕 Newly Listed</button>
-
         <span class="sb-lbl">BY LOCATION</span>
         <button class="si" data-estates-loc="Karen">📍 Karen</button>
         <button class="si" data-estates-loc="Kilimani">📍 Kilimani</button>
@@ -142,17 +117,13 @@
         <button class="si" data-estates-loc="Ngong Road">📍 Ngong Road</button>
         <button class="si" data-estates-loc="Lavington">📍 Lavington</button>
         <button class="si" data-estates-loc="Thika Road">📍 Thika Road</button>
-
         <span class="sb-lbl">MANAGE</span>
         <button class="si" onclick="openModal('listEstateModal')">➕ List Your Estate</button>
-
         <span class="sb-lbl">ACCOUNT</span>
-        <button class="si" id="estDirSignInBtn" onclick="openModal('authModal')">🔑 Sign In</button>
+        <button class="si" onclick="openModal('authModal')">🔑 Sign In</button>
         <button class="si si-back" onclick="showPage('home')" style="margin-top:8px">← Home</button>
       </nav>
     </aside>
-
-    <!-- Estates Main Content -->
     <div class="dash-main">
       <div class="dp-hdr" style="margin-bottom:20px">
         <div>
@@ -161,24 +132,19 @@
         </div>
       </div>
       <div class="filter-bar" style="margin-bottom:24px">
-        <input class="input" id="estateSearch" placeholder="🔍 Search by name or location…" oninput="renderEstatesDirectory()" style="flex:1;min-width:180px;max-width:none" />
+        <input class="input" id="estateSearch" placeholder="🔍 Search by name or location…" oninput="renderEstatesDirectory()" style="flex:1;min-width:180px" />
       </div>
       <div class="houses-grid" id="estatesDirectoryGrid"></div>
     </div>
-
   </div>
   <footer class="site-footer">© 2026 Communest</footer>
 </section>
 
 
-<!-- ═══════════════════════════════════════════
-     ABOUT PAGE
-═══════════════════════════════════════════ -->
+<!-- ═══════════ ABOUT PAGE ═══════════ -->
 <section id="page-about" class="page">
-
-  <!-- About Hero -->
-  <div style="background:var(--hero-grad);padding:80px 40px 60px;transition:background .35s">
-    <div style="max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center" class="about-hero-grid">
+  <div style="background:var(--hero-grad);padding:80px 40px 60px">
+    <div style="max-width:900px;margin:0 auto" class="about-hero-grid">
       <div>
         <div class="pg-tag">About Communest</div>
         <h1 style="margin-bottom:16px">Built for Kenyan <em style="color:var(--sky);font-style:normal">Estates</em></h1>
@@ -218,63 +184,58 @@
     </div>
   </div>
 
-  <!-- Establishment & History -->
   <div class="wrap">
     <div class="about-layout">
       <div>
         <div class="pg-tag">Establishment & History</div>
         <h2 style="margin-bottom:20px">How Communest Came to Be</h2>
-        <p class="about-desc">Communest was conceived in 2024 by Kipngeno Shammah Kiplangat, a student at Pioneer International University pursuing a Bachelor of Information Technology, under the supervision of Dr. Odoyo. The platform emerged from a clear need observed across Nairobi's rapidly growing residential estate sector.</p>
-        <p class="about-desc">Estate managers were drowning in paper-based systems — handwritten rent receipts, physical complaint books, and phone call chains for announcements. Tenants had no central place to track their lease, payments, or submit issues. The digital divide between management and residents was costing time, money, and trust.</p>
-        <p class="about-desc">Communest was built to close that gap: a single digital space where an estate can exist online, where outsiders can browse and apply, and where tenants can manage their residency transparently.</p>
-
+        <p class="about-desc">Communest was conceived in 2024 by Kipngeno Shammah Kiplangat, a student at Pioneer International University pursuing a Bachelor of Information Technology, under the supervision of Dr. Odoyo.</p>
+        <p class="about-desc">Estate managers were drowning in paper-based systems — handwritten rent receipts, physical complaint books, and phone call chains for announcements. Tenants had no central place to track their lease, payments, or submit issues. Communest was built to close that gap.</p>
+        <p class="about-desc">A single digital space where an estate can exist online, where outsiders can browse and apply, and where tenants can manage their residency transparently.</p>
         <div class="about-feats" style="margin-top:32px">
-          <div class="af"><div class="af-icon">📅</div><div><h4>2024 — Concept & Research</h4><p>Identified the gap in Kenya's estate management landscape through field research in Nairobi's residential areas.</p></div></div>
-          <div class="af"><div class="af-icon">🖥️</div><div><h4>2025 — Development Begins</h4><p>Platform development begins at Pioneer International University as a final-year BIT project under academic supervision.</p></div></div>
-          <div class="af"><div class="af-icon">🚀</div><div><h4>2026 — Platform Launch</h4><p>Communest goes live with 6 seed estates, full tenant management, photo galleries, and public inquiry features.</p></div></div>
+          <div class="af"><div class="af-icon">📅</div><div><h4>2024 — Concept & Research</h4><p>Identified the gap in Kenya's estate management landscape through field research in Nairobi.</p></div></div>
+          <div class="af"><div class="af-icon">🖥️</div><div><h4>2025 — Development Begins</h4><p>Platform development begins at Pioneer International University as a final-year BIT project.</p></div></div>
+          <div class="af"><div class="af-icon">🚀</div><div><h4>2026 — Platform Launch</h4><p>Communest goes live with full tenant management, photo galleries, and public inquiry features.</p></div></div>
         </div>
       </div>
-
       <div class="about-panel">
         <div class="abox">
           <span class="abox-lbl">Legal & Compliance</span>
           <div class="about-feats" style="margin-top:8px">
-            <div class="af"><div class="af-icon">📜</div><div><h4>Title Deeds</h4><p>All estates listed on Communest are encouraged to register their title deed reference numbers for transparency. These are displayed on the estate's About page for prospective tenants to verify ownership through the Lands Registry.</p></div></div>
-            <div class="af"><div class="af-icon">🏛️</div><div><h4>Land Registration Act, 2012</h4><p>Communest operates in alignment with Kenya's Land Registration Act, 2012, which governs ownership, transfer, and leasing of land and residential property across the country.</p></div></div>
-            <div class="af"><div class="af-icon">🤝</div><div><h4>Tenancy Agreements</h4><p>Management teams are required to maintain formal lease agreements with all tenants. Communest stores lease start and end dates, monthly rent, and unit details digitally.</p></div></div>
-            <div class="af"><div class="af-icon">🔒</div><div><h4>Data Privacy</h4><p>Tenant data is scoped strictly to their estate. No personal information is shared across estates or made public. Management can only access data for their own registered estate.</p></div></div>
+            <div class="af"><div class="af-icon">📜</div><div><h4>Title Deeds</h4><p>Estates are encouraged to register their title deed reference numbers for transparency, verifiable through the Lands Registry.</p></div></div>
+            <div class="af"><div class="af-icon">🏛️</div><div><h4>Land Registration Act, 2012</h4><p>Communest operates in alignment with Kenya's Land Registration Act governing ownership, transfer, and leasing of residential property.</p></div></div>
+            <div class="af"><div class="af-icon">🤝</div><div><h4>Tenancy Agreements</h4><p>Management teams maintain formal lease agreements with all tenants. Communest stores lease dates, rent, and unit details digitally.</p></div></div>
+            <div class="af"><div class="af-icon">🔒</div><div><h4>Data Privacy</h4><p>Tenant data is scoped strictly to their estate. No personal information is shared across estates or made public.</p></div></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- How it works -->
     <div style="margin-top:72px">
       <div class="pg-hdr" style="text-align:center;max-width:600px;margin:0 auto 48px">
         <div class="pg-tag">How It Works</div>
         <h2>Simple for Everyone</h2>
         <p>Whether you're looking for a home, managing an estate, or already a tenant — Communest has a clear flow for you.</p>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px" class="how-grid">
+      <div class="how-grid">
         <div class="abox" style="text-align:center;padding:32px 24px">
           <div style="font-size:2.8rem;margin-bottom:16px">🏙️</div>
           <h4 style="margin-bottom:10px;font-family:'DM Serif Display',serif;font-size:1.1rem">1. Browse</h4>
-          <p style="font-size:.85rem;line-height:1.6">Explore all listed estates, filter by location, view photos, and browse available houses at your own pace — no sign-in required.</p>
+          <p style="font-size:.85rem;line-height:1.6">Explore all listed estates, filter by location, view photos, and browse available houses — no sign-in required.</p>
         </div>
         <div class="abox" style="text-align:center;padding:32px 24px">
           <div style="font-size:2.8rem;margin-bottom:16px">📋</div>
           <h4 style="margin-bottom:10px;font-family:'DM Serif Display',serif;font-size:1.1rem">2. Apply</h4>
-          <p style="font-size:.85rem;line-height:1.6">Found a house you like? Submit an application directly. The estate's management team reviews it and assigns you a unit upon approval.</p>
+          <p style="font-size:.85rem;line-height:1.6">Found a house you like? Submit an application directly. Management reviews it and assigns you a unit upon approval.</p>
         </div>
         <div class="abox" style="text-align:center;padding:32px 24px">
           <div style="font-size:2.8rem;margin-bottom:16px">🏠</div>
           <h4 style="margin-bottom:10px;font-family:'DM Serif Display',serif;font-size:1.1rem">3. Manage</h4>
-          <p style="font-size:.85rem;line-height:1.6">Once connected, sign in to your estate's dashboard to pay rent, submit requests, view announcements, and manage your lease — all in one place.</p>
+          <p style="font-size:.85rem;line-height:1.6">Once connected, sign in to your estate dashboard to pay rent, submit requests, view announcements, and manage your lease.</p>
         </div>
       </div>
     </div>
 
-    <!-- Developer -->
     <div style="margin-top:72px">
       <div class="about-layout">
         <div class="about-panel">
@@ -302,7 +263,7 @@
               <span class="chip chip-green">Photo Galleries</span>
               <span class="chip chip-green">Lease Management</span>
               <span class="chip chip-green">Public Inquiries</span>
-              <span class="chip chip-green">Dark / Light Mode</span>
+              <span class="chip chip-green">Estate Photo Uploads</span>
             </div>
           </div>
         </div>
@@ -310,35 +271,29 @@
           <div class="pg-tag">Academic Context</div>
           <h2 style="margin-bottom:20px">A Final-Year Project with Real-World Impact</h2>
           <p class="about-desc">Communest is submitted as a final-year project for the Bachelor of Information Technology degree at Pioneer International University, Nairobi. The project addresses real systemic issues in Kenya's residential property management sector.</p>
-          <p class="about-desc">The platform demonstrates full-stack web development capabilities: multi-user authentication, role-based access control, estate-scoped data isolation, file uploads for photo galleries, and a responsive mobile-first design — all built without backend infrastructure, using the browser as a runtime environment.</p>
+          <p class="about-desc">The platform demonstrates full-stack web development capabilities: multi-user authentication, role-based access control, estate-scoped data isolation, file uploads for photo galleries, and a responsive mobile-first design — all built without backend infrastructure.</p>
           <p class="about-desc">The goal was to produce not just a functional prototype, but a deployable product that could genuinely serve Kenyan estate managers and their tenants from day one.</p>
           <div class="about-feats" style="margin-top:28px">
             <div class="af"><div class="af-icon">🎓</div><div><h4>Academic Supervisor</h4><p>Dr. Odoyo · Pioneer International University · Nairobi, Kenya</p></div></div>
-            <div class="af"><div class="af-icon">📧</div><div><h4>Contact Developer</h4><p>Available through Pioneer International University for queries regarding the platform.</p></div></div>
+            <div class="af"><div class="af-icon">📧</div><div><h4>Contact Developer</h4><p>Available through Pioneer International University for any queries regarding the platform.</p></div></div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
   <footer class="site-footer">© 2026 Communest</footer>
 </section>
 
 
-<!-- ═══════════════════════════════════════════
-     ESTATE PAGE — each estate's own space
-═══════════════════════════════════════════ -->
+<!-- ═══════════ ESTATE PAGE ═══════════ -->
 <section id="page-estate" class="page page-dash">
   <div class="dash-layout">
-
-    <!-- Sidebar -->
     <aside class="dash-sidebar">
       <div class="sb-brand">
         <div class="sb-logo" id="estateSidebarName">Estate</div>
         <div class="sb-role" id="estateSidebarRole">Public View</div>
       </div>
       <nav class="sb-nav">
-
         <span class="sb-lbl">EXPLORE</span>
         <button class="si active" data-panel="ep-houses">🏠 Available Houses</button>
         <button class="si"        data-panel="ep-about">ℹ️ About This Estate</button>
@@ -374,14 +329,12 @@
           <button class="si si-back" onclick="doSignout()">← Sign Out</button>
         </div>
         <button class="si si-back" onclick="showPage('estates')" style="margin-top:8px">← Back to Estates</button>
-
       </nav>
     </aside>
 
-    <!-- Main content -->
     <div class="dash-main">
 
-      <!-- PUBLIC: Available Houses -->
+      <!-- PUBLIC: Houses -->
       <div class="dp active" id="ep-houses">
         <div class="dp-hdr">
           <div>
@@ -392,13 +345,13 @@
         <div class="houses-grid" id="estateHousesGrid"></div>
       </div>
 
-      <!-- PUBLIC: About This Estate -->
+      <!-- PUBLIC: About -->
       <div class="dp" id="ep-about">
         <div class="dp-hdr"><h2>About This Estate</h2></div>
         <div id="epAboutContent"></div>
       </div>
 
-      <!-- PUBLIC: Send Inquiry -->
+      <!-- PUBLIC: Inquiry -->
       <div class="dp" id="ep-inquire">
         <div class="dp-hdr"><h2>Send an Inquiry</h2></div>
         <div class="inq-layout">
@@ -447,7 +400,7 @@
         <div class="ann-list" id="tenantAnnPreview"></div>
       </div>
 
-      <!-- TENANT: My Requests -->
+      <!-- TENANT: Requests -->
       <div class="dp" id="ep-requests">
         <div class="dp-hdr">
           <h2>My Requests</h2>
@@ -467,7 +420,7 @@
         <div class="ann-list" id="tenantAnnFull"></div>
       </div>
 
-      <!-- TENANT: Rent & Payments -->
+      <!-- TENANT: Rent -->
       <div class="dp" id="ep-rent">
         <div class="dp-hdr"><h2>Rent & Payments 💳</h2></div>
         <div id="tenantRentSummary"></div>
@@ -480,7 +433,7 @@
         </div>
       </div>
 
-      <!-- TENANT: My Lease -->
+      <!-- TENANT: Lease -->
       <div class="dp" id="ep-lease">
         <div class="dp-hdr"><h2>My Lease 📄</h2></div>
         <div id="tenantLeaseContent"></div>
@@ -515,7 +468,7 @@
         </div>
       </div>
 
-      <!-- MGMT: Post Announcement -->
+      <!-- MGMT: Announcements -->
       <div class="dp" id="ep-mgmt-announcements">
         <div class="dp-hdr"><h2>Post Announcement</h2></div>
         <div class="contact-form-card" style="max-width:600px;margin-bottom:32px">
@@ -542,7 +495,7 @@
         <div class="ann-list" id="mgmtAnnList"></div>
       </div>
 
-      <!-- MGMT: My Tenants -->
+      <!-- MGMT: Tenants -->
       <div class="dp" id="ep-mgmt-tenants">
         <div class="dp-hdr">
           <h2>My Tenants</h2>
@@ -587,19 +540,15 @@
           <h2>Estate Photos 🖼️</h2>
           <span style="font-size:.82rem;color:var(--text-3)">Visible to all visitors on your estate page</span>
         </div>
-        <p style="font-size:.9rem;color:var(--text-3);margin-bottom:24px;line-height:1.7">Upload photos of your estate's common areas, facilities, and surroundings. These appear publicly so prospective tenants can get a feel for the estate before inquiring.</p>
-
-        <!-- Upload zone -->
+        <p style="font-size:.9rem;color:var(--text-3);margin-bottom:24px;line-height:1.7">Upload photos of your estate's common areas, facilities, and surroundings so prospective tenants can get a feel for the estate before inquiring.</p>
         <div class="gallery-upload-area" style="max-width:600px;margin-bottom:28px" onclick="document.getElementById('estatePhotoInput').click()">
           <div class="gua-icon">🖼️</div>
           <div class="gua-text">
             <strong>Click to upload estate photos</strong>
-            <span>Common areas, gate, parking, gym, pool, gardens · JPG, PNG, WEBP</span>
+            <span>Gate, parking, gym, pool, gardens · JPG, PNG, WEBP</span>
           </div>
           <input type="file" id="estatePhotoInput" accept="image/*" multiple style="display:none" onchange="handleEstatePhotoUpload(event)" />
         </div>
-
-        <!-- Photo categories hint -->
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px">
           <span class="chip chip-blue">🚪 Gate & Entrance</span>
           <span class="chip chip-blue">🌿 Gardens</span>
@@ -608,8 +557,6 @@
           <span class="chip chip-blue">🏊 Pool</span>
           <span class="chip chip-blue">🔒 Security</span>
         </div>
-
-        <!-- Uploaded photos grid -->
         <div class="dp-section-lbl">Uploaded Photos (<span id="estatePhotoCount">0</span>)</div>
         <div id="estatePhotosGrid" class="estate-photos-grid"></div>
       </div>
@@ -633,9 +580,7 @@
 </section>
 
 
-<!-- ═══════════════════════════════════════════
-     MODALS
-═══════════════════════════════════════════ -->
+<!-- ═══════════ MODALS ═══════════ -->
 
 <!-- List Your Estate -->
 <div class="overlay" id="listEstateModal">
@@ -667,7 +612,7 @@
     </div>
     <div class="form-row">
       <div class="form-group"><label>Phone *</label><input class="input" id="leMgrPhone" placeholder="+254 7XX XXX XXX" /></div>
-      <div class="form-group"><label>Management Password</label><input class="input" id="leMgrPass" type="password" placeholder="Min. 6 characters" /></div>
+      <div class="form-group"><label>Password</label><input class="input" id="leMgrPass" type="password" placeholder="Min. 6 characters" /></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeModal('listEstateModal')">Cancel</button>
@@ -676,7 +621,7 @@
   </div>
 </div>
 
-<!-- Auth (Sign In / Register) -->
+<!-- Auth -->
 <div class="overlay" id="authModal">
   <div class="modal">
     <div class="modal-hdr">
@@ -735,7 +680,7 @@
   </div>
 </div>
 
-<!-- New Request (Tenant) -->
+<!-- New Request -->
 <div class="overlay" id="requestModal">
   <div class="modal">
     <div class="modal-hdr">
@@ -768,7 +713,7 @@
   </div>
 </div>
 
-<!-- Approve & Assign (Management) -->
+<!-- Approve & Assign -->
 <div class="overlay" id="assignModal">
   <div class="modal">
     <div class="modal-hdr">
@@ -791,7 +736,7 @@
   </div>
 </div>
 
-<!-- Resolve Request (Management) -->
+<!-- Resolve Request -->
 <div class="overlay" id="resolveModal">
   <div class="modal">
     <div class="modal-hdr">
@@ -838,7 +783,7 @@
   </div>
 </div>
 
-<!-- Add House (Management) -->
+<!-- Add House -->
 <div class="overlay" id="addHouseModal">
   <div class="modal">
     <div class="modal-hdr">

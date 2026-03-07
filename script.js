@@ -415,13 +415,15 @@ function openEstatePage(estateId, panelToOpen) {
     document.getElementById('estateSidebarRole').textContent = 'Public View';
   }
 
-  // Wire up sidebar panel buttons — always close sidebar on selection
+  // Wire up sidebar panel buttons — close sidebar on mobile only
   document.querySelectorAll('#page-estate .si[data-panel]').forEach(btn => {
     btn.onclick = () => {
-      const layout  = document.querySelector('#page-estate .dash-layout');
-      const overlay = document.getElementById('estateSbOverlay');
-      if (layout)  layout.classList.remove('sb-open');
-      if (overlay) overlay.classList.remove('visible');
+      if (window.innerWidth <= 768) {
+        const layout  = document.querySelector('#page-estate .dash-layout');
+        const overlay = document.getElementById('estateSbOverlay');
+        if (layout)  layout.classList.remove('sb-open');
+        if (overlay) overlay.classList.remove('visible');
+      }
       document.querySelectorAll('#page-estate .si').forEach(s => s.classList.remove('active'));
       btn.classList.add('active');
       document.querySelectorAll('#page-estate .dp').forEach(p => p.classList.remove('active'));
@@ -1239,19 +1241,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // Wire estates directory sidebar filter buttons
   document.querySelectorAll('#page-estates .si[data-estates-filter]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const layout  = document.querySelector('#page-estates .dash-layout');
-      const overlay = document.getElementById('dirSbOverlay');
-      if (layout)  layout.classList.remove('sb-open');
-      if (overlay) overlay.classList.remove('visible');
+      if (window.innerWidth <= 768) {
+        const layout  = document.querySelector('#page-estates .dash-layout');
+        const overlay = document.getElementById('dirSbOverlay');
+        if (layout)  layout.classList.remove('sb-open');
+        if (overlay) overlay.classList.remove('visible');
+      }
       setEstDirFilter(btn.dataset.estatesFilter, '');
     });
   });
   document.querySelectorAll('#page-estates .si[data-estates-loc]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const layout  = document.querySelector('#page-estates .dash-layout');
-      const overlay = document.getElementById('dirSbOverlay');
-      if (layout)  layout.classList.remove('sb-open');
-      if (overlay) overlay.classList.remove('visible');
+      if (window.innerWidth <= 768) {
+        const layout  = document.querySelector('#page-estates .dash-layout');
+        const overlay = document.getElementById('dirSbOverlay');
+        if (layout)  layout.classList.remove('sb-open');
+        if (overlay) overlay.classList.remove('visible');
+      }
       setEstDirFilter('', btn.dataset.estatesLoc);
     });
   });

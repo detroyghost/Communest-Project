@@ -299,7 +299,7 @@ function doEstateLogin() {
   const initials = user.name.split(' ').map(n => n[0]).join('').slice(0, 2);
   navBtn.textContent = initials;
   navBtn.style.cssText = 'border-radius:50%;width:34px;padding:0;height:34px;';
-  navBtn.onclick = () => { if (confirm('Sign out?')) doSignout(); };
+  navBtn.onclick = openProfileModal;
 
   // Route to their estate
   if (user.role === 'management') {
@@ -331,7 +331,7 @@ function doLogin() {
   const initials = user.name.split(' ').map(n => n[0]).join('').slice(0, 2);
   navBtn.textContent = initials;
   navBtn.style.cssText = 'border-radius:50%;width:34px;padding:0;height:34px;';
-  navBtn.onclick = () => { if (confirm('Sign out?')) doSignout(); };
+  navBtn.onclick = openProfileModal;
 
   // Route to their estate
   if (user.role === 'management') {
@@ -408,7 +408,12 @@ function openEstatePage(estateId, panelToOpen) {
   document.getElementById('sidebarUser').style.display   = currentUser ? 'block' : 'none';
 
   if (currentUser) {
-    document.getElementById('sidebarUserName').textContent = '👤 ' + currentUser.name.split(' ')[0];
+    const sbUserBtn = document.getElementById('sidebarUserName');
+    sbUserBtn.textContent = '👤 ' + currentUser.name.split(' ')[0];
+    sbUserBtn.onclick = openProfileModal;
+    sbUserBtn.style.pointerEvents = 'auto';
+    sbUserBtn.style.opacity = '1';
+    sbUserBtn.style.cursor = 'pointer';
     document.getElementById('estateSidebarRole').textContent =
       isMgrHere ? 'Management' : isTenantHere ? 'Tenant · Unit ' + currentUser.unit : 'Signed In';
   } else {
@@ -1225,7 +1230,7 @@ function updateDirSidebar() {
     const backPanel = isMgr ? 'ep-mgmt-overview' : 'ep-overview';
     accountNav.innerHTML =
       '<span class="sb-lbl">ACCOUNT</span>' +
-      '<button class="si" style="cursor:default;opacity:.65;pointer-events:none">👤 ' + currentUser.name + '</button>' +
+      '<button class="si" onclick="openProfileModal()" style="opacity:1">👤 ' + currentUser.name + '</button>' +
       (estate ? '<button class="si si-back" onclick="openEstatePage(' + eid + ',\'' + backPanel + '\')">🏘️ Back to Estate</button>' : '') +
       '<button class="si si-back" onclick="doSignout()">← Sign Out</button>';
   }
@@ -1340,7 +1345,7 @@ function submitListEstate() {
   const initials = mgrName.split(' ').map(n => n[0]).join('').slice(0, 2);
   navBtn.textContent = initials;
   navBtn.style.cssText = 'border-radius:50%;width:34px;padding:0;height:34px;';
-  navBtn.onclick = () => { if (confirm('Sign out?')) doSignout(); };
+  navBtn.onclick = openProfileModal;
   openEstatePage(newId, 'ep-mgmt-overview');
 }
 
@@ -1705,3 +1710,158 @@ function applySidebarDefaults() {
   }
 }
 document.addEventListener('DOMContentLoaded', applySidebarDefaults);
+
+
+/* ═══════════════════════════════════════════════════════
+   USER PROFILE — view & edit name, email, phone, password, photo
+═══════════════════════════════════════════════════════ */
+
+// Stores profile photo as base64 per user id
+const PROFILE_PHOTOS = {};
+
+function openProfileModal() {
+  if (!currentUser) return;
+  const u = currentUser;
+
+  // Populate fields
+  document.getElementById('profileName').value        = u.name  || '';
+  document.getElementById('profileEmail').value       = u.email || '';
+  document.getElementById('profilePhone').value       = u.phone || '';
+  document.getElementById('profileCurrentPwd').value  = '';
+  document.getElementById('profileNewPwd').value      = '';
+  document.getElementById('profileConfirmPwd').value  = '';
+  document.getElementById('profileError').style.display   = 'none';
+  document.getElementById('profileSuccess').style.display = 'none';
+
+  // Render avatar
+  renderProfileAvatar();
+  openModal('profileModal');
+}
+
+function renderProfileAvatar() {
+  const wrap = document.getElementById('profileAvatarImg');
+  if (!wrap || !currentUser) return;
+  const photo = PROFILE_PHOTOS[currentUser.id];
+  if (photo) {
+    wrap.innerHTML = '<img src="' + photo + '" style="width:100%;height:100%;object-fit:cover;" />';
+  } else {
+    // Initials fallback
+    const initials = currentUser.name.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+    wrap.innerHTML = initials;
+    wrap.style.fontSize = '2rem';
+  }
+}
+
+function handleProfilePhoto(e) {
+  const file = e.target.files[0];
+  if (!file || !currentUser) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    PROFILE_PHOTOS[currentUser.id] = ev.target.result;
+    renderProfileAvatar();
+    refreshNavAvatar();
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveProfile() {
+  if (!currentUser) return;
+
+  const name    = document.getElementById('profileName').value.trim();
+  const email   = document.getElementById('profileEmail').value.trim().toLowerCase();
+  const phone   = document.getElementById('profilePhone').value.trim();
+  const currPwd = document.getElementById('profileCurrentPwd').value;
+  const newPwd  = document.getElementById('profileNewPwd').value;
+  const confPwd = document.getElementById('profileConfirmPwd').value;
+  const errEl   = document.getElementById('profileError');
+  const okEl    = document.getElementById('profileSuccess');
+
+  errEl.style.display = 'none';
+  okEl.style.display  = 'none';
+
+  // Validation
+  if (!name)  { showProfileError('Name cannot be empty.'); return; }
+  if (!email) { showProfileError('Email cannot be empty.'); return; }
+
+  // Email uniqueness check (allow same email as self)
+  const emailTaken = USERS.find(u => u.email.toLowerCase() === email && u.id !== currentUser.id);
+  if (emailTaken) { showProfileError('That email is already used by another account.'); return; }
+
+  // Password change
+  if (newPwd || confPwd || currPwd) {
+    if (!currPwd) { showProfileError('Enter your current password to change it.'); return; }
+    if (currPwd !== currentUser.password) { showProfileError('Current password is incorrect.'); return; }
+    if (!newPwd)  { showProfileError('Enter a new password.'); return; }
+    if (newPwd.length < 5) { showProfileError('New password must be at least 5 characters.'); return; }
+    if (newPwd !== confPwd) { showProfileError('New passwords do not match.'); return; }
+    currentUser.password = newPwd;
+    // Update in USERS array too
+    const u = USERS.find(u => u.id === currentUser.id);
+    if (u) u.password = newPwd;
+  }
+
+  // Apply updates to currentUser and USERS array
+  currentUser.name  = name;
+  currentUser.email = email;
+  currentUser.phone = phone;
+  const u = USERS.find(u => u.id === currentUser.id);
+  if (u) { u.name = name; u.email = email; u.phone = phone; }
+
+  // Refresh all places that show the user's name
+  refreshUserDisplay();
+
+  // Show success
+  okEl.style.display = 'block';
+  setTimeout(() => { okEl.style.display = 'none'; }, 3000);
+
+  // Clear password fields
+  document.getElementById('profileCurrentPwd').value = '';
+  document.getElementById('profileNewPwd').value      = '';
+  document.getElementById('profileConfirmPwd').value  = '';
+}
+
+function showProfileError(msg) {
+  const el = document.getElementById('profileError');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+}
+
+function refreshUserDisplay() {
+  if (!currentUser) return;
+  const firstName = currentUser.name.split(' ')[0];
+
+  // Estate sidebar username button
+  const sbName = document.getElementById('sidebarUserName');
+  if (sbName) sbName.textContent = '👤 ' + firstName;
+
+  // Nav button initials
+  refreshNavAvatar();
+
+  // Dir sidebar if showing
+  updateDirSidebar();
+
+  // Tenant welcome heading
+  const tw = document.getElementById('tenantWelcome');
+  if (tw) tw.textContent = 'Welcome back, ' + firstName + ' 👋';
+
+  // Mgmt welcome heading
+  const mw = document.getElementById('mgmtWelcome');
+  if (mw) mw.textContent = 'Welcome, ' + firstName;
+}
+
+function refreshNavAvatar() {
+  // Top-right nav button — show photo or initials
+  const navBtn = document.getElementById('navSignInBtn');
+  if (!navBtn || !currentUser) return;
+  const photo = PROFILE_PHOTOS[currentUser.id];
+  if (photo) {
+    navBtn.innerHTML = '<img src="' + photo + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;display:block;" />';
+    navBtn.style.padding = '0';
+    navBtn.style.overflow = 'hidden';
+  } else {
+    const initials = currentUser.name.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+    navBtn.textContent = initials;
+    navBtn.style.padding = '';
+    navBtn.style.overflow = '';
+  }
+}

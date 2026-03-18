@@ -1148,17 +1148,55 @@ const App = {
 
   <!-- Auth Modal -->
   <div class="overlay" :class="{ open: s.authModalOpen }" @click.self="s.authModalOpen=false">
-    <div class="modal" style="max-width:420px">
-      <div class="modal-hdr"><h3>{{ s.authTab==='signin' ? 'Sign In' : 'Create Account' }}</h3><button class="modal-x" @click="s.authModalOpen=false">✕</button></div>
-      <div class="auth-tabs">
-        <button class="auth-tab" :class="{ active: s.authTab==='signin' }"  @click="s.authTab='signin'">Sign In</button>
-        <button class="auth-tab" :class="{ active: s.authTab==='signup' }" @click="s.authTab='signup'">Sign Up</button>
+    <div class="modal auth-modal">
+      <!-- Close -->
+      <button class="modal-x" style="position:absolute;top:16px;right:16px;" @click="s.authModalOpen=false">✕</button>
+
+      <!-- Brand header -->
+      <div class="auth-brand">
+        <div class="auth-logo-mark"></div>
+        <span class="auth-brand-name">Communest</span>
       </div>
-      <div v-if="s.authTab==='signup'" class="form-group"><label>Full Name</label><input class="input" v-model="s.authName" placeholder="Your full name" /></div>
-      <div class="form-group"><label>Email</label><input class="input" v-model="s.authEmail" type="email" placeholder="your@email.com" /></div>
-      <div class="form-group"><label>Password</label><input class="input" v-model="s.authPassword" type="password" placeholder="Password" /></div>
-      <div v-if="s.authError" style="color:#f87171;font-size:.82rem;margin-bottom:10px">{{ s.authError }}</div>
-      <button class="btn btn-primary btn-full" @click="s.authTab==='signin' ? doLogin() : doSignup()">{{ s.authTab==='signin' ? 'Sign In' : 'Create Account' }}</button>
+      <h2 class="auth-title">{{ s.authTab==='signin' ? 'Welcome back' : 'Create your account' }}</h2>
+      <p class="auth-subtitle">{{ s.authTab==='signin' ? 'Sign in to access your estate dashboard' : 'Join Communest and find your perfect home' }}</p>
+
+      <!-- Tab pills -->
+      <div class="auth-pill-tabs">
+        <button class="auth-pill" :class="{ active: s.authTab==='signin' }"  @click="s.authTab='signin'; s.authError=''">Sign In</button>
+        <button class="auth-pill" :class="{ active: s.authTab==='signup' }" @click="s.authTab='signup'; s.authError=''">Sign Up</button>
+      </div>
+
+      <!-- Fields -->
+      <div class="auth-fields">
+        <div v-if="s.authTab==='signup'" class="auth-field-wrap">
+          <span class="auth-field-icon">👤</span>
+          <input class="auth-input" v-model="s.authName" placeholder="Full name" autocomplete="name" />
+        </div>
+        <div class="auth-field-wrap">
+          <span class="auth-field-icon">✉️</span>
+          <input class="auth-input" v-model="s.authEmail" type="email" placeholder="Email address" autocomplete="email" />
+        </div>
+        <div class="auth-field-wrap">
+          <span class="auth-field-icon">🔒</span>
+          <input class="auth-input" v-model="s.authPassword" type="password" placeholder="Password" autocomplete="current-password" @keydown.enter="s.authTab==='signin' ? doLogin() : doSignup()" />
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div v-if="s.authError" class="auth-error">{{ s.authError }}</div>
+
+      <!-- CTA -->
+      <button class="btn btn-primary btn-full auth-cta" @click="s.authTab==='signin' ? doLogin() : doSignup()">
+        {{ s.authTab==='signin' ? 'Sign In →' : 'Create Account →' }}
+      </button>
+
+      <!-- Switch -->
+      <p class="auth-switch">
+        {{ s.authTab==='signin' ? "Don't have an account?" : 'Already have an account?' }}
+        <button class="auth-switch-btn" @click="s.authTab = s.authTab==='signin'?'signup':'signin'; s.authError=''">
+          {{ s.authTab==='signin' ? 'Sign up' : 'Sign in' }}
+        </button>
+      </p>
     </div>
   </div>
 
@@ -1207,6 +1245,8 @@ const App = {
       <div v-if="s.profileError" style="color:#f87171;font-size:.82rem;margin-bottom:10px;padding:8px 12px;background:rgba(248,113,113,.1);border-radius:8px">⚠️ {{ s.profileError }}</div>
       <div v-if="s.profileSuccess" style="color:#4ade80;font-size:.82rem;margin-bottom:10px;padding:8px 12px;background:rgba(74,222,128,.1);border-radius:8px">✅ Profile updated successfully!</div>
       <button class="btn btn-primary btn-full" @click="saveProfile()">Save Changes</button>
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0" />
+      <button class="btn btn-outline btn-full" style="color:#f87171;border-color:rgba(248,113,113,.3);" @click="s.profileModalOpen=false; doSignout()">← Sign Out</button>
     </div>
   </div>
 
